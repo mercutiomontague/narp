@@ -1,0 +1,71 @@
+require 'basic_g.treetop'
+require 'condition_g.treetop'
+require 'fields_g.treetop'
+require 'derived_field_extensions.rb'
+
+module Narp
+  grammar DerivedFieldG
+		include BasicG
+    include FieldsG include ConditionG
+
+    rule derived_field
+      '/derivedfield'i identifier (derived_field_expression / builtin_field)  <DerivedField>
+    end
+
+    rule builtin_field
+      ('pagenumber'i space numeric_type <BuiltinField>) / ('today'i paren date_mask paren <BuiltinField>) / ('recordnumber'i space numeric_type <BuiltinField>) 
+    end
+
+    rule derived_field_expression
+      source_value (space? derived_type)? <DerivedFieldExpression>
+    end
+
+    rule source_value 
+      (conditional_expression / numeric_value / field_name / string ) 1..1  <SourceValue> 
+    end
+
+    rule derived_type
+      (character_type format_edit? sequence? <DerivedType>) / 
+      (numeric_type format_edit? <DerivedType>) /
+      (format_edit 1..1 <DerivedType>) /
+      regex_type format_edit? <DerivedType>
+    end
+
+    rule numeric_type
+      (numeric_format ordinal? <NumericType>) / 
+      (ordinal numeric_format  <NumericType>) /
+      (ordinal 'EN'i precision?  <NumericType>) /
+      (space? 'EN'i ordinal precision? <NumericType>) /
+      (regex_type space 'en'i <NumericType>)
+    end
+
+    rule numeric_format
+      space? ('uinteger'i / 'integer'i / 'dfloat'i / 'float'i) space? <NumericFormat>
+    end
+
+    rule character_type
+      (space? 'character'i ordinal <CharacterType>) / 
+      (ordinal 'character'?  <CharacterType>) / 
+      (regex_type 'character'i  <CharacterType>)
+    end
+
+    rule regex_type
+      (space? 'extract'i regexp format_string? <RegexType>)
+    end
+
+    rule format_edit
+      space? ('compress'i / 'truncate'i) space? <FormatEdit>
+    end
+
+    rule format_string
+      single_quoted_string 1..1  <FormatString>
+    end
+
+    rule conditional_expression
+      (space? 'if'i condition_name 'then'i (source_value 1..1 <ThenExpression>) ('else'i source_value 1..1 <ElseExpression>) <ConditionalExpression>)
+    end
+    
+  end
+end
+
+

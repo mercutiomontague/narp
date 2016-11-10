@@ -1,0 +1,157 @@
+program_definition: |
+      /domain zions /infile /etl/dev/source/text_253/ref/data__2016-11-03.txt STREAM CRLF "\t" /copy
+      /collatingsequence DEFAULT ASCII
+      /fields cus 3:1 - 3:7
+      /condition header  (cus = "0000019")
+      /condition billing (cus != "0000019")
+      /condition remaining (cus = "       ")
+      /outfile /etl/dev/source/text_253/ref/data_head__2016-11-03.txt overwrite stream crlf
+      /include header
+      /outfile /etl/dev/source/text_253/ref/data_bill__2016-11-03.txt overwrite stream crlf
+      /include billing
+      /outfile /etl/dev/source/text_253/ref/data_remain__2016-11-03.txt overwrite stream crlf
+      /include remaining
+
+preprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/pre_stage/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      rm ~/pre_stage/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      rm ~/pre/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      hadoop fs -rm hdfs:///user/hadoop/in/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3/*
+      hadoop fs -mkdir hdfs:///user/hadoop/in/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      set -e
+      aws s3 cp s3://narp-in-dev/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz ~/pre_stage/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      gunzip ~/pre_stage/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      ln -s ~/pre_stage/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/pre/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      hadoop fs -copyFromLocal ~/pre/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 hdfs:///user/hadoop/in/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+
+ddl: |
+      CREATE EXTERNAL TABLE stage.in_8
+      (
+      	col_1 varchar(65000)
+      	, col_2 varchar(65000)
+      	, col_3 varchar(65000)
+      	, col_4 varchar(65000)
+      	, col_5 varchar(65000)
+      	, col_6 varchar(65000)
+      	, col_7 varchar(65000)
+      	, col_8 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_9
+      (
+      	cus varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_10
+      (
+      	cus varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_11
+      (
+      	cus varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3'
+      ;
+
+hql: |
+      FROM (
+      	SELECT
+      		lhs.cus        AS lhs_cus
+      	FROM
+      		(
+      		SELECT
+      			SUBSTRING(col_3, 1, 6)        AS cus
+      		FROM
+      			stage.in_8
+      		) lhs
+      )src
+      INSERT OVERWRITE TABLE stage.t_9
+      SELECT
+      	lhs_cus
+      WHERE
+      	(lhs_cus = '0000019')
+      
+      INSERT OVERWRITE TABLE stage.t_10
+      SELECT
+      	lhs_cus
+      WHERE
+      	(lhs_cus != '0000019')
+      
+      INSERT OVERWRITE TABLE stage.t_11
+      SELECT
+      	lhs_cus
+      WHERE
+      	(lhs_cus = ' ')
+      ;
+
+postprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      rm ~/post/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      rm ~/post/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/post_stage/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      mv ~/post_stage/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/post/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      gzip ~/post/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      aws s3 cp ~/post/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz s3://narp-out-dev/data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      rm ~/post/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      rm ~/post/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/post_stage/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      mv ~/post_stage/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/post/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      gzip ~/post/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      aws s3 cp ~/post/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz s3://narp-out-dev/data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      rm ~/post/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+      rm ~/post/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/post_stage/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      mv ~/post_stage/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3 ~/post/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      gzip ~/post/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3
+      aws s3 cp ~/post/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz s3://narp-out-dev/data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3.gz
+
+
+s3_input_mapping: |
+      {"/etl/dev/source/text_253/ref/data__2016-11-03.txt"=>"data__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3"}
+
+s3_output_mapping: |
+      {"/etl/dev/source/text_253/ref/data_head__2016-11-03.txt"=>"data_head__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3", "/etl/dev/source/text_253/ref/data_bill__2016-11-03.txt"=>"data_bill__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3", "/etl/dev/source/text_253/ref/data_remain__2016-11-03.txt"=>"data_remain__2016-11-03.txt_6c614b673592942e36b21d4bd96623134e6fd94c54b6bbdb52f0c19511c586e3"}

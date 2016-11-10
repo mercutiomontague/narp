@@ -1,0 +1,29 @@
+require 'basic_g.treetop'
+require 'file_common.treetop'
+require 'outfile_extensions.rb'
+
+
+module Narp
+  grammar OutfileG
+    include BasicG
+    include FileCommon
+    
+  
+  	rule outfile
+  		'/OUTFILE'i file_identifier outfile_attribute* <Outfile>
+  	end
+  
+  	rule outfile_attribute
+      file_attribute / (disposition space? <FileAttribute>) / (record_numbering space? <FileAttribute>)
+  	end
+
+    rule disposition
+      ('overwrite'i <Disposition>) / ('append'i <Disposition>)
+    end
+
+    rule record_numbering
+      'recordnumber'i (space 'start'i)? integer <RecordNumbering>
+    end
+  
+  end
+end

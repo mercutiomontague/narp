@@ -1,0 +1,19 @@
+require 'basic_g.treetop'
+require 'simple_extensions.rb'
+
+module Narp
+  grammar SimpleG 
+		include BasicG
+
+    rule simple 
+      ('/join'i space 'unpaired'i ((space 'leftside'i space 'rightside'i) / (space 'leftside'i) / (space  'rightside'i))? (space 'only'i)? space? <Join>) /
+      ('/copy'i <Copy>) / collating_sequence 
+    end
+
+    # This rule is very rudimentary atm given I don't really want to implement. This is just the bare minimum to process Zions' files
+    rule collating_sequence
+      '/collatingsequence'i space ('default'i / identifier) space 'ascii'i <CollatingSequence>
+    end
+
+  end
+end

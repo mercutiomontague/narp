@@ -1,0 +1,12 @@
+require 'basic_g.treetop'
+require 'join_keys_extensions.rb'
+
+module Narp
+  grammar JoinKeysG
+		include BasicG
+
+    rule join_keys
+      '/joinkeys'i space ('sorted'i space)? field_name (space? ',' space? field_name)* <JoinKeys>
+    end
+  end
+end

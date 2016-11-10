@@ -1,0 +1,44 @@
+require 'file_common_extensions.rb'
+require 'basic_g.treetop'
+
+
+module Narp
+  grammar FileCommon 
+    include BasicG
+    
+  	rule file_attribute
+      (organization space? <FileAttribute>) / (record_length space? <FileAttribute>) / (field_seperator space? <FileAttribute>) / 
+      (compressed space? <FileAttribute>) / (record_format space? <FileAttribute>)
+  	end
+  
+  	# A filename can be anything that is ended by a whitespace or it can 
+    # have embedded whitespaces as long as the name is quoted by double or
+    # single quote.
+  	rule file_identifier
+      (space? quote [/a-zA-Z0-9_\s\.\-]+ quote space? <FileIdentifier>) / (space? [/a-zA-Z0-9_\.\-]+ space? <FileIdentifier>)
+    end
+  
+    rule field_seperator
+      'fieldseparator'i? (space 'UNIXSORTDEFAULT'i <FieldSeperator>) / 
+      'fieldseparator'i? (space 'NONE'i <FieldSeperator>) / 
+      'fieldseparator'i? (string 1..1 <FieldSeperator>)  
+    end
+  
+  	rule organization
+  		('sequential'i space? <Organization>) / ('indexed'i space? <Organization>)/ ('vsam'i space? <Organization> )
+    end
+  
+    rule compressed
+      ('compressed'i (space 'highcompression'i)? <Compressed>) / ('uncompressed' <Compressed>)
+    end
+  
+    rule record_length
+      integer integer? <RecordLength>
+    end
+
+    rule record_format
+      ('stream'i (space 'crlf'i / space 'cr'i / space 'lf'i)? <StreamRecordFormat>) / 
+      ('customstream'i space string  <StreamRecordFormat>)
+    end
+  end
+end

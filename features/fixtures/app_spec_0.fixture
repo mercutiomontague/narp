@@ -1,0 +1,215 @@
+program_definition: |
+      /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 /fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 /include cond2
+
+preprocess: |      
+      #!/bin/bash
+      
+      set +e
+      rm ~/pre_stage/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb.gz
+      rm ~/pre_stage/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb
+      rm ~/pre/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb
+      hadoop fs -rm hdfs:///user/hadoop/in/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb/*
+      hadoop fs -mkdir hdfs:///user/hadoop/in/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb
+      set -e
+      aws s3 cp s3://narp-in-dev/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb.gz ~/pre_stage/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb.gz
+      gunzip ~/pre_stage/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb.gz
+      tot=`wc -l ~/pre_stage/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb | cut -f1 -d' '
+      tail -$((tot - 15)) ~/pre_stage/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb | head -87 | cut -c1-349 > ~/pre/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb
+      
+      hadoop fs -copyFromLocal ~/pre/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb hdfs:///user/hadoop/in/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/pre_stage/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      rm ~/pre_stage/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      rm ~/pre/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      hadoop fs -rm hdfs:///user/hadoop/in/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/*
+      hadoop fs -mkdir hdfs:///user/hadoop/in/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      set -e
+      aws s3 cp s3://narp-in-dev/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz ~/pre_stage/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      gunzip ~/pre_stage/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      tot=`wc -l ~/pre_stage/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | cut -f1 -d' '
+      tail -$((tot - 15)) ~/pre_stage/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | head -87 > ~/pre/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      
+      hadoop fs -copyFromLocal ~/pre/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 hdfs:///user/hadoop/in/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/pre_stage/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      rm ~/pre_stage/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      rm ~/pre/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      hadoop fs -rm hdfs:///user/hadoop/in/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855/*
+      hadoop fs -mkdir hdfs:///user/hadoop/in/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      set -e
+      aws s3 cp s3://narp-in-dev/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz ~/pre_stage/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      gunzip ~/pre_stage/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      tot=`wc -l ~/pre_stage/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | cut -f1 -d' '
+      tail -$((tot - 5)) ~/pre_stage/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 | head -17 > ~/pre/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      
+      hadoop fs -copyFromLocal ~/pre/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 hdfs:///user/hadoop/in/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+ddl: | 
+      CREATE EXTERNAL TABLE stage.moo
+      (
+      	col_1 varchar(65000)
+      	, col_2 varchar(65000)
+      	, col_3 varchar(65000)
+      	, col_4 varchar(65000)
+      	, col_5 varchar(65000)
+      	, col_6 varchar(65000)
+      	, col_7 varchar(65000)
+      	, col_8 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY 's'
+      	LINES TERMINATED BY '\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.zoo
+      (
+      	col_1 varchar(65000)
+      	, col_2 varchar(65000)
+      	, col_3 varchar(65000)
+      	, col_4 varchar(65000)
+      	, col_5 varchar(65000)
+      	, col_6 varchar(65000)
+      	, col_7 varchar(65000)
+      	, col_8 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.foo
+      (
+      	col_1 varchar(65000)
+      	, col_2 varchar(65000)
+      	, col_3 varchar(65000)
+      	, col_4 varchar(65000)
+      	, col_5 varchar(65000)
+      	, col_6 varchar(65000)
+      	, col_7 varchar(65000)
+      	, col_8 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_11
+      (
+      	dateCol varchar(65000)
+      	, my_col varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY 's'
+      	LINES TERMINATED BY '\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_12
+      (
+      	row_num varchar(65000)
+      	, dateCol varchar(65000)
+      	, my_col varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79'
+      ;
+
+hql: |
+      FROM (
+      	SELECT
+      		rhs.my_col           AS rhs_my_col
+      		, lhs.col3           AS lhs_col3
+      		, lhs.dateCol        AS lhs_dateCol
+      	FROM
+      		(
+      		SELECT
+      			SUBSTR(col_4, 1)                                                               AS my_col
+      			, CONCAT(SUBSTR(col_3, 3), SUBSTRING(col_4, 1, 7))                             AS col3
+      			, CAST(CONCAT(REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 2), '-', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 1), '-', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 3), ' ', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 4), ':00:00) AS TIMESTAMP)        AS dateCol
+      		FROM
+      			stage.moo
+      		UNION ALL
+      		SELECT
+      			SUBSTR(col_4, 1)                                                               AS my_col
+      			, CONCAT(SUBSTR(col_3, 3), SUBSTRING(col_4, 1, 7))                             AS col3
+      			, CAST(CONCAT(REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 2), '-', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 1), '-', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 3), ' ', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 4), ':00:00) AS TIMESTAMP)        AS dateCol
+      		FROM
+      			stage.zoo
+      		) lhs
+      		LEFT JOIN
+      		(
+      		SELECT
+      			SUBSTR(col_4, 1)                                                               AS my_col
+      			, CONCAT(SUBSTR(col_3, 3), SUBSTRING(col_4, 1, 7))                             AS col3
+      			, CAST(CONCAT(REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 2), '-', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 1), '-', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 3), ' ', REGEXP_EXTRACT(LOWER(SUBSTR(col_5, 1)), '(\\d{1,2}).{1}(\\d{2}).{1}(\\d{2}).{1}(\\d{1,2})', 4), ':00:00) AS TIMESTAMP)        AS dateCol
+      		FROM
+      			stage.foo
+      		) rhs
+      			ON lhs.col3 = rhs.my_col
+      )src
+      INSERT OVERWRITE TABLE stage.t_11
+      SELECT
+      	lhs_dateCol
+      	, rhs_my_col
+      WHERE
+      	LOCATE('green', 'blueblueblueblueblue') > 0 OR rhs_my_col < 10
+      
+      INSERT OVERWRITE TABLE stage.t_12
+      SELECT
+      	ROW_NUMBER() OVER () + 22 AS row_num
+      	, lhs_dateCol
+      	, rhs_my_col
+      WHERE
+      	LOWER(lhs_col3) RLIKE 'yel'
+      ;
+
+postprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      rm ~/post/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      rm ~/post/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 ~/post_stage/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      mv ~/post_stage/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 ~/post/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      gzip ~/post/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+      aws s3 cp ~/post/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz s3://narp-out-dev/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79
+      rm ~/post/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79.gz
+      rm ~/post/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79 ~/post_stage/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79
+      cut -c1-325 ~/post_stage/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79 > ~/post/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79
+      gzip ~/post/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79
+      aws s3 cp ~/post/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79.gz s3://narp-out-dev/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79.gz
+
+s3_input_mapping: |
+      {"/short/path/My text_file.txt"=>"My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb", "Your text_file.txt"=>"Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "third_file.txt"=>"third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+
+s3_output_mapping: |
+      {"Her text_file.txt"=>"Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "path/to/file/His text_file.txt"=>"His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79"}
+

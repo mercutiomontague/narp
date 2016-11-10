@@ -1,0 +1,88 @@
+require 'condition_extensions.rb'
+require 'basic_g.treetop'
+
+module Narp
+  grammar ConditionG
+    include BasicG
+    
+    rule condition
+      ('/condition'i identifier expression (logical_operator expression)* <Condition> ) / 
+      ('/condition'i identifier paren expression (logical_operator space? expression)* paren <Condition> )
+    end
+  
+    rule logical_operator
+      (space? 'and'i space? <LogicalOperator>) / (space? 'or'i space? <LogicalOperator>)
+    end
+    
+    rule expression 
+      (paren? numeric_expression paren? <Expression>) / 
+      (numeric_expression 1..1 <Expression>) / 
+      (paren? character_expression paren? <Expression>) / 
+      (character_expression 1..1 <Expression>) 
+      #/ (bit_expression 1..1 <Expression>)
+    end
+
+    rule numeric_expression
+      (numeric_value numeric_operator numeric_value <NumericExpression>) 
+    end
+
+		rule numeric_value
+      (paren numeric_value paren numeric_value? <NumericValue>) / 
+      (arithmetic_operator numeric_value <NumericValue>) /
+      (numeric_value_raw+ numeric_value? <NumericValue>)
+		end
+
+    rule numeric_value_raw
+      arithmetic_operator? numeric_terminal arithmetic_operator? <NumericValueRaw>
+    end
+
+    rule numeric_terminal
+      (number 1..1  <NumericTerminal>) / (('+' / '-')? numeric_field_name <NumericTerminal>) / 
+      (derived_field_name 1..1  <NumericTerminal>) 
+    end
+
+    rule arithmetic_expression
+      numeric_terminal (arithmetic_operator numeric_terminal) <ArithmeticExpression>
+    end
+
+    rule arithmetic_operator
+      (space? '*' space? <ArithmeticOperator>) / (space? '/' space? <ArithmeticOperator>) / 
+      (space? '+' space? <ArithmeticOperator>) / (space? '-' space? <ArithmeticOperator>)  
+    end
+    
+    rule numeric_operator
+      (space? 'ne'i space? <NumericOperator>) / (space? '!=' space? <NumericOperator>) / 
+      (space? 'eq'i space? <NumericOperator>) / (space? '=' space? <NumericOperator>) / 
+      (space? 'le'i space? <NumericOperator>) / (space? 'space? <=' space? <NumericOperator>) / 
+      (space? 'ge'i space? <NumericOperator>) / (space? '>=' space? <NumericOperator>) /
+      (space? 'lt'i space? <NumericOperator>) / (space? '<' space?  <NumericOperator>) / 
+      (space? 'gt'i space? <NumericOperator>) / (space? '>' space? <NumericOperator>)
+    end
+
+    rule character_expression
+      (character_terminal match_operator regexp <CharacterExpression>) /
+      (character_terminal character_operator character_terminal <CharacterExpression>) 
+    end
+
+    rule character_terminal
+      (character_field_name 1..1 <CharacterTerminal>) / (string 1..1 <CharacterTerminal>) 
+    end
+
+    rule match_operator
+      (space? 'mt'i space? <MatchOperator> ) / (space? 'nm'i space? <MatchOperator> ) 
+    end
+
+    rule character_operator
+      (space? 'ct'i space? <CharacterOperator> ) / 
+      (space? 'nc'i space? <CharacterOperator> ) / 
+      (space? '!='i space? <CharacterOperator> ) / 
+      (space? '>='i space? <CharacterOperator> ) / 
+      (space? '<='i space? <CharacterOperator> ) / 
+      (space? '>'i space? <CharacterOperator> ) / 
+      (space? '<'i space? <CharacterOperator> ) / 
+      (space? '='i space? <CharacterOperator> ) / 
+      match_operator 1..1
+    end
+  end
+end 
+

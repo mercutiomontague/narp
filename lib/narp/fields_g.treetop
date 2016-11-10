@@ -1,0 +1,87 @@
+require 'basic_g.treetop'
+require 'fields_extensions.rb'
+
+module Narp
+  grammar FieldsG
+		include BasicG
+
+    rule fields
+      '/fields'i field+ <Fields>
+    end
+
+    rule field
+      identifier field_description field_modifier? <Field>
+    end
+
+    rule field_description
+      (delimited_field 1..2 space? <FieldDescription>)/ (fixed_field space? <FieldDescription>)
+    end
+
+    rule fixed_field
+      byte_bit_position format_length? <FixedField>
+    end
+
+    rule byte_bit_position
+      ordinal ('B'i ordinal)? <ByteBitPosition>
+    end
+
+    rule format_length
+      (field_format ordinal? <FormatLength>) / (ordinal field_format <FormatLength>)
+    end
+
+    rule field_format
+      ('character'i space?  <FieldFormat>) / (datetime space? <FieldFormat>) / ('bit'i space? <FieldFormat>) / (numeric_format space? <FieldFormat>)
+    end
+
+    rule datetime
+      ('datetime'i space datetime_component+  <DateTime>)
+    end
+
+    rule datetime_component
+      ('YEAR'i datetime_seperator? <DateTimeComponent>) / ('YY'i datetime_seperator? <DateTimeComponent>) / 
+      ('MM0'i datetime_seperator? <DateTimeComponent>) / ('MM'i datetime_seperator? <DateTimeComponent>) / 
+			('MNTH'i datetime_seperator? <DateTimeComponent>) / ('MON'i datetime_seperator? <DateTimeComponent>) / ('MN'i datetime_seperator? <DateTimeComponent>) / 
+      ('DD0'i datetime_seperator? <DateTimeComponent>) / ('DDth'i datetime_seperator? <DateTimeComponent>) / 
+			('DD'i datetime_seperator? <DateTimeComponent>) / ('DAY'i datetime_seperator? <DateTimeComponent>) / ('DY'i <datetime_seperator? DateTimeComponent>) / 
+      ('HH0'i datetime_seperator? <DateTimeComponent>) / ('HH'i datetime_seperator? <DateTimeComponent>) / 
+			('HR0'i datetime_seperator? <DateTimeComponent>) / ('HR'i datetime_seperator? <DateTimeComponent>) / 
+      ('MI0'i datetime_seperator? <DateTimeComponent>) / ('MI'i datetime_seperator? <DateTimeComponent>) / 
+      ('SE0'i datetime_seperator? <DateTimeComponent>) / ('SE'i  datetime_seperator? <DateTimeComponent>) / 
+      ('AM'i datetime_seperator? <DateTimeComponent>) / ('A.M.'i datetime_seperator? <DateTimeComponent>)
+    end
+
+    rule datetime_seperator
+      ('-'+ <DateTimeSeperator>) / ('/'+ <DateTimeSeperator>) / (':'+ <DateTimeSeperator>) / ('.'+ <DateTimeSeperator>) / 
+			(space+ <DateTimeSeperator>) / (double_quoted_string 1..1 <DateTimeSeperator>)
+    end
+
+    rule delimited_field
+      delimited_start space? delimited_stop? space? field_format? <DelimitedField>
+    end
+
+    rule delimited_start
+      delimited_position 1..1 <DelimitedStart>
+    end
+
+    rule delimited_stop
+      '-' space? delimited_position <DelimitedStop>
+    end
+
+    rule delimited_position
+      ordinal space? ':' (space? ordinal)? (space 'NOBLANK'i)? space? <DelimitedPosition>
+    end
+
+    rule field_modifier
+       (precision space? <FieldModifier>) / (sequence space? <FieldModifier>)
+    end
+
+		rule numeric_format
+			('uinteger'i <NumericFormat>) / ('integer'i <NumericFormat>) / ('en'i <NumericFormat>) / ('LZ'i <NumericFormat>) / ('LP'i <NumericFormat>) / ('ZD'i <NumericFormat>) / ('TP'i <NumericFormat>) / ('LS'i <NumericFormat>) / ('TS'i <NumericFormat>) / ('AN'i <NumericFormat>) / ('dfloat'i <NumericFormat>) / ('float'i <NumericFormat>) / ('pd'i <NumericFormat>) 
+		end
+
+    rule precision
+      ordinal ('/' ordinal)? <PrecisionScale>
+    end
+
+  end
+end

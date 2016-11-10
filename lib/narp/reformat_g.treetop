@@ -1,0 +1,17 @@
+require 'basic_g.treetop'
+require 'reformat_extensions.rb'
+
+module Narp
+  grammar ReformatG
+		include BasicG
+
+    rule reformat
+      '/reformat'i reformat_field_name (space? ',' reformat_field_name)* <Reformat>
+    end
+
+    rule reformat_field_name 
+      space? ('leftside:'i / 'rightside:'i)? field_name <ReformatField>  / 
+      space? ('leftside:'i / 'rightside:'i)? derived_field_name <ReformatField> 
+    end
+  end
+end

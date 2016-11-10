@@ -1,0 +1,33 @@
+require 'basic_g.treetop'
+require 'file_common.treetop'
+require 'infile_extensions.rb'
+
+
+module Narp
+  grammar InfileG
+    include BasicG
+    include FileCommon
+    
+  
+  	rule infile
+  		'/INFILE'i file_identifier alias? file_attribute* skip_to* stop_after* number_of_columns? <Infile>
+  	end
+  
+  	rule alias
+  		'alias'i identifier <Alias>
+    end
+  
+  	rule skip_to 
+      ('fskiprecord'i integer <SkipTo>) / ('fskipnumber'i integer <SkipTo>)
+  	end
+
+  	rule stop_after 
+      ('fstopafter'i integer <StopAfter>)
+  	end
+
+    rule number_of_columns
+      ('NUMBER_OF_COLUMNS'i integer <NumberOfColumns>)
+    end
+
+  end
+end

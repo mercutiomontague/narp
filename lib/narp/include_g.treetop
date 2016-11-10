@@ -1,0 +1,18 @@
+require 'basic_g.treetop'
+require 'include_extensions.rb'
+
+
+module Narp
+  grammar IncludeG 
+    include BasicG
+  
+  	rule include 
+  		'/INCLUDE'i space condition_name <Include>
+  	end
+  
+  	# rule condition_name 
+    #   ('ALL'i <MyIdentifier>) / (identifier &{|o| myapp.conditions.detect{|f| f.name == o.first.value } } <MyIdentifier>)   
+    # end
+  
+  end
+end

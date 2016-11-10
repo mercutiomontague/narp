@@ -1,0 +1,165 @@
+preprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/pre_stage/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f.gz
+      rm ~/pre_stage/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f
+      rm ~/pre/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f
+      hadoop fs -rm hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f/*
+      hadoop fs -mkdir hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f
+      set -e
+      aws s3 cp s3://narp-in-dev/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f.gz ~/pre_stage/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f.gz
+      gunzip ~/pre_stage/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f.gz
+      tot=`wc -l ~/pre_stage/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f | cut -f1 -d' '
+      cut -c1-1500 ~/pre_stage/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f > ~/pre/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f
+      
+      hadoop fs -copyFromLocal ~/pre/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f
+
+ddl: |
+      CREATE EXTERNAL TABLE stage.in_11
+      (
+      	col_1 varchar(65000)
+      	, col_2 varchar(65000)
+      	, col_3 varchar(65000)
+      	, col_4 varchar(65000)
+      	, col_5 varchar(65000)
+      	, col_6 varchar(65000)
+      	, col_7 varchar(65000)
+      	, col_8 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_aee235df1c68c6c7690bf07b857e2d7368bba80e89717fc574e9f1221272891f'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_12
+      (
+      	num varchar(65000)
+      	, form varchar(65000)
+      	, df1 varchar(65000)
+      	, df5 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_13
+      (
+      	num varchar(65000)
+      	, form varchar(65000)
+      	, df1 varchar(65000)
+      	, df5 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_14
+      (
+      	num varchar(65000)
+      	, form varchar(65000)
+      	, df4 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b'
+      ;
+
+hql: |
+      FROM (
+      	SELECT
+      		lhs.num                                      AS lhs_num
+      		, lhs.form                                   AS lhs_form
+      		, lhs.desc                                   AS lhs_desc
+      		, lhs.formz                                  AS lhs_formz
+      		, lhs_num + 1                                AS df1
+      		, (lhs_num + 1) + 2                          AS df2
+      		, ((lhs_num + 1) + 2) * 3                    AS df3
+      		, (((lhs_num + 1) + 2) * 3) / 4              AS df4
+      		, ((((lhs_num + 1) + 2) * 3) / 4) - 5        AS df5
+      	FROM
+      		(
+      		SELECT
+      			SUBSTRING(col_1, 10, 8)          AS num
+      			, SUBSTRING(col_2, 19, 8)        AS form
+      			, SUBSTRING(col_7, 1, 7)         AS desc
+      			, SUBSTRING(col_6, 1, 5)         AS formz
+      		FROM
+      			stage.in_11
+      		) lhs
+      )src
+      INSERT OVERWRITE TABLE stage.t_12
+      SELECT
+      	lhs_num
+      	, lhs_form
+      	, df1
+      	, df5
+      WHERE
+      	(lhs_desc != 'blue cheese')
+      
+      INSERT OVERWRITE TABLE stage.t_13
+      SELECT
+      	lhs_num
+      	, lhs_form
+      	, df1
+      	, df5
+      WHERE
+      	(lhs_formz >= '889900' AND lhs_formz <= '889999')
+      
+      INSERT OVERWRITE TABLE stage.t_14
+      SELECT
+      	lhs_num
+      	, lhs_form
+      	, df4
+      WHERE
+      	(lhs_form = ' ')
+      ;
+
+postprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      rm ~/post/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz
+      rm ~/post/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b ~/post_stage/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      mv ~/post_stage/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b ~/post/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      gzip ~/post/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      aws s3 cp ~/post/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz s3://narp-out-dev/pika_form_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      rm ~/post/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz
+      rm ~/post/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b ~/post_stage/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      mv ~/post_stage/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b ~/post/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      gzip ~/post/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      aws s3 cp ~/post/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz s3://narp-out-dev/chu_10_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      rm ~/post/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz
+      rm ~/post/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b ~/post_stage/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      mv ~/post_stage/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b ~/post/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      gzip ~/post/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b
+      aws s3 cp ~/post/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz s3://narp-out-dev/rychu_2016-09-23.txt_604f2627e355f6757de540e2cf01b24894c5c88df80b8ce8f9093043901ce17b.gz

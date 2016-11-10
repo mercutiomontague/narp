@@ -1,0 +1,153 @@
+preprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/pre_stage/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      rm ~/pre_stage/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      rm ~/pre/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      hadoop fs -rm hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3/*
+      hadoop fs -mkdir hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      set -e
+      aws s3 cp s3://narp-in-dev/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz ~/pre_stage/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      gunzip ~/pre_stage/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      tot=`wc -l ~/pre_stage/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 | cut -f1 -d' '
+      cut -c1-1500 ~/pre_stage/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 > ~/pre/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      
+      hadoop fs -copyFromLocal ~/pre/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+
+ddl: |
+      CREATE EXTERNAL TABLE stage.in_8
+      (
+      	col_1 varchar(65000)
+      	, col_2 varchar(65000)
+      	, col_3 varchar(65000)
+      	, col_4 varchar(65000)
+      	, col_5 varchar(65000)
+      	, col_6 varchar(65000)
+      	, col_7 varchar(65000)
+      	, col_8 varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/text_zubuat_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_9
+      (
+      	form varchar(65000)
+      	, desc varchar(65000)
+      	, formz varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_10
+      (
+      	form varchar(65000)
+      	, desc varchar(65000)
+      	, formz varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3'
+      ;
+      
+      CREATE EXTERNAL TABLE stage.t_11
+      (
+      	form varchar(65000)
+      	, desc varchar(65000)
+      	, formz varchar(65000)
+      )
+      ROW FORMAT
+      	DELIMITED FIELDS TERMINATED BY '\t'
+      	LINES TERMINATED BY '\r\n'
+      STORED AS TEXTFILE
+      LOCATION 'hdfs:///user/hadoop/in/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3'
+      ;
+hql: |
+      FROM (
+      	SELECT
+      		lhs.form           AS lhs_form
+      		, lhs.desc         AS lhs_desc
+      		, lhs.formz        AS lhs_formz
+      	FROM
+      		(
+      		SELECT
+      			SUBSTRING(col_2, 19, 8)         AS form
+      			, SUBSTRING(col_7, 1, 7)        AS desc
+      			, SUBSTRING(col_6, 1, 5)        AS formz
+      		FROM
+      			stage.in_8
+      		) lhs
+      )src
+      INSERT OVERWRITE TABLE stage.t_9
+      SELECT
+      	lhs_form
+      	, lhs_desc
+      	, lhs_formz
+      WHERE
+      	(lhs_desc != 'blue cheese')
+      
+      INSERT OVERWRITE TABLE stage.t_10
+      SELECT
+      	lhs_form
+      	, lhs_desc
+      	, lhs_formz
+      WHERE
+      	(lhs_formz >= '889900' AND lhs_formz <= '889999')
+      
+      INSERT OVERWRITE TABLE stage.t_11
+      SELECT
+      	lhs_form
+      	, lhs_desc
+      	, lhs_formz
+      WHERE
+      	(lhs_form = ' ')
+      ;
+
+postprocess: |
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      rm ~/post/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      rm ~/post/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 ~/post_stage/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      mv ~/post_stage/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 ~/post/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      gzip ~/post/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      aws s3 cp ~/post/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz s3://narp-out-dev/pika_form_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      rm ~/post/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      rm ~/post/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 ~/post_stage/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      mv ~/post_stage/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 ~/post/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      gzip ~/post/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      aws s3 cp ~/post/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz s3://narp-out-dev/chu_10_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      
+      
+      #!/bin/bash
+      
+      set +e
+      rm ~/post_stage/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      rm ~/post/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz
+      rm ~/post/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      set -e
+      hadoop fs -getmerge hdfs:///user/hadoop/in/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 ~/post_stage/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      mv ~/post_stage/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3 ~/post/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      gzip ~/post/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3
+      aws s3 cp ~/post/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz s3://narp-out-dev/rychu_2016-09-23.txt_d7fbfb87cd230573d1b4538b73afd7eca249d29c3ac62a1508fbf07d0d4197f3.gz

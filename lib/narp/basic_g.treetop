@@ -1,0 +1,129 @@
+require 'basic_extensions.rb'
+
+module Narp
+  grammar BasicG
+    rule basic_root_for_test_purposes
+      string / number / regexp  
+    end
+
+    rule space
+      [\s]+
+    end
+  
+    rule single_quote
+      "'"
+    end
+
+    rule double_quote
+      '"'
+    end
+		
+    rule quote
+      single_quote / double_quote
+    end
+
+    rule single_quoted_string
+      (space? single_quote ([^"'"]+ / (single_quote single_quote))* single_quote space? <SingleQuotedString>) 
+    end
+  
+    rule double_quoted_string
+      (space? double_quote ([^'"']+ / (double_quote double_quote))* double_quote space? <DoubleQuotedString>) 
+    end
+
+    rule string
+      (space? [0-9]* single_quoted_string <String>) / 
+      (space? [0-9]* ('x'i / 'o'i )? double_quoted_string <String>)
+    end
+  
+		rule paren
+			(space? '(' space? <ParenthesisLiteral>) /	(space? ')' space? <ParenthesisLiteral>)
+		end
+  
+    rule identifier
+      # space? [a-zA-Z0-9_]+ space? <MyIdentifier>
+      space? [a-zA-Z]+ [a-zA-Z0-9_]* space? <MyIdentifier>
+    end
+    
+    rule integer
+      space? ('+' / '-')? [0-9]+ space? <IntegerLiteral>
+    end
+
+    rule ordinal
+      space? [0-9]+ space? <OrdinalLiteral>
+    end
+
+    rule float
+      space? ('+' / '-')? [0-9]+ ('.' [0-9]+) space? <FloatLiteral>
+    end
+    
+    rule hex_digit
+      [a-fA-F0-9]
+    end
+
+    rule oct_digit
+      [0-7]
+    end
+
+    rule edited_numeric
+      (space? [0-9]+ (',' [0-9] 3..3)+ ('.' [0-9]+)? space? <EditedNumeric>) 
+    end
+
+    rule number
+      edited_numeric / float / ordinal / integer 
+    end
+
+    rule regexp
+      (space? '/' [^/]+ '/' regexp_modifier* space? &{|o| o.first.input =~ /\/(.+)\//; Regexp.new($1) } <Regex>)
+    end
+
+    rule regexp_modifier
+      'i' / 'x' / 'm' / 'g'
+    end
+
+    rule field_name
+      identifier &{|o| myapp.fields.any? && z = myapp.fields.detect{|f| 
+          f.name == o.first.value 
+        }
+        parse_issue.message = "You referenced an undeclared field [#{o.first.value}]." unless z
+        z
+      } <FieldName>
+    end
+
+    rule numeric_field_name
+      identifier &{|o| myapp.numeric_fields.detect{|f| f.name == o.first.value } } <NumericFieldName>
+    end
+
+    rule character_field_name
+      identifier &{|o| myapp.character_fields.detect{|f| f.name == o.first.value } } <CharacterFieldName>
+    end
+
+    rule derived_field_name
+      identifier &{|o| myapp.derived_fields.any? && z = myapp.derived_fields.detect{|f| 
+          f.name == o.first.value 
+        }
+        parse_issue.message = "You referenced an undeclared derived field [#{o.first.value}]." unless z
+        z
+      } <DerivedFieldName>
+    end
+
+    rule condition_name
+      ('ALL'i <ConditionName>) /  
+      identifier &{|o| myapp.conditions.any? && z = myapp.conditions.detect{|c| 
+          c.name == o.first.value 
+        }
+        parse_issue.message = "You referenced an undeclared condition [#{o.first.value}]." unless z
+        z
+      } <ConditionName>
+    end
+
+    rule sequence
+      ('ascii'i <SequenceName>) / (identifier+ &{|o| myapp.collations.detect{|c| c.name == o.first.value}  } <SequenceName>)
+    end
+
+    rule domain
+      '/DOMAIN'i identifier <Domain>
+    end
+
+  end
+end
+
