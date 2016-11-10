@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/mercutiomontague/narp"
   s.summary     = %q{Program for declarative processing of flat files}
   s.description = %q{Program for declarative processing of flat files}
-  s.license     = 'NonStandard'
+  s.license     = 'Nonstandard'
 
   s.required_rubygems_version = '>= 2.3'
 
