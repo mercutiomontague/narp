@@ -1,5 +1,5 @@
-require 'condition_extensions.rb'
-require 'basic_g.treetop'
+require 'narp/condition_extensions.rb'
+require 'narp/basic_g.treetop'
 
 module Narp
   grammar ConditionG

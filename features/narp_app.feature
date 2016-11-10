@@ -185,12 +185,3 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the postprocess should match app_spec_5
 		
 
-  Scenario: Parse a definition to obtain the processing commands 
-		Given that Narp is invoked with program_definition from app_spec_0
-    Then the stdout should match app_spec_0 
-
-	@current
-  Scenario: Parse a definition to obtain the processing commands 
-		Given that Narp is invoked with program_definition from app_spec_5
-    Then the stdout should match app_spec_5 
-

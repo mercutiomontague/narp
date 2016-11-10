@@ -1,6 +1,6 @@
-require 'basic_g.treetop'
-require 'file_common.treetop'
-require 'outfile_extensions.rb'
+require 'narp/basic_g.treetop'
+require 'narp/file_common.treetop'
+require 'narp/outfile_extensions.rb'
 
 
 module Narp

@@ -1,4 +1,4 @@
-require 'parse_issue.rb'
+require 'narp/parse_issue.rb'
 
 module Narp 
   class MyIdentifier < Treetop::Runtime::SyntaxNode

@@ -1,5 +1,5 @@
-require 'basic_g.treetop'
-require 'fields_extensions.rb'
+require 'narp/basic_g.treetop'
+require 'narp/fields_extensions.rb'
 
 module Narp
   grammar FieldsG

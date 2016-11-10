@@ -1,5 +1,5 @@
-require 'basic_g.treetop'
-require 'join_keys_extensions.rb'
+require 'narp/basic_g.treetop'
+require 'narp/join_keys_extensions.rb'
 
 module Narp
   grammar JoinKeysG

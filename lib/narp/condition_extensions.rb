@@ -1,4 +1,4 @@
-require 'basic_extensions.rb'
+require 'narp/basic_extensions.rb'
 
 module Narp
 

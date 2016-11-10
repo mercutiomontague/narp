@@ -1,5 +1,5 @@
-require 'node_extensions.rb'
-require 'basic_extensions.rb'
+require 'narp/node_extensions.rb'
+require 'narp/basic_extensions.rb'
 
 module Narp
   class JoinKeys < Treetop::Runtime::SyntaxNode

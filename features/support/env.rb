@@ -1,7 +1,7 @@
 require 'rspec/expectations'
 require 'treetop'
-require 'node_extensions.rb'
-require 'syntax_tree.rb'
+require 'narp/node_extensions.rb'
+require 'narp/syntax_tree.rb'
 require 'narp_app.rb'
 require 'diffy'
 

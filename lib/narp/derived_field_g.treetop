@@ -1,7 +1,7 @@
-require 'basic_g.treetop'
-require 'condition_g.treetop'
-require 'fields_g.treetop'
-require 'derived_field_extensions.rb'
+require 'narp/basic_g.treetop'
+require 'narp/condition_g.treetop'
+require 'narp/fields_g.treetop'
+require 'narp/derived_field_extensions.rb'
 
 module Narp
   grammar DerivedFieldG

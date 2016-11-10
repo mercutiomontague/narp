@@ -1,4 +1,4 @@
-require 'node_extensions.rb'
+require 'narp/node_extensions.rb'
 require 'digest'
 
 module Narp
@@ -117,6 +117,10 @@ module Narp
 
     def fields_string
       file_fields.collect{|i| "#{i.name} varchar(65000)"}.join("\n\t, ") 
+    end
+
+    def drop_ddl
+      "DROP EXTERNAL TABLE #{hive_name};"
     end
 
     def ddl

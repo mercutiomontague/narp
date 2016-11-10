@@ -1,4 +1,4 @@
-require 'node_extensions.rb'
+require 'narp/node_extensions.rb'
 
 module Narp
   class Alias < NamedNode

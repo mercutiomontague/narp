@@ -1,13 +1,13 @@
-require 'basic_g.treetop'
-require 'outfile_g.treetop'
-require 'infile_g.treetop'
-require 'fields_g.treetop'
-require 'condition_g.treetop'
-require 'include_g.treetop'
-require 'join_keys_g.treetop'
-require 'simple_g.treetop'
-require 'reformat_g.treetop'
-require 'derived_field_g.treetop'
+require 'narp/basic_g.treetop'
+require 'narp/outfile_g.treetop'
+require 'narp/infile_g.treetop'
+require 'narp/fields_g.treetop'
+require 'narp/condition_g.treetop'
+require 'narp/include_g.treetop'
+require 'narp/join_keys_g.treetop'
+require 'narp/simple_g.treetop'
+require 'narp/reformat_g.treetop'
+require 'narp/derived_field_g.treetop'
 
 grammar Narp 
   include BasicG

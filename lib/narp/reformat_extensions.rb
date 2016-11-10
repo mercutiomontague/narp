@@ -1,6 +1,6 @@
-require 'node_extensions.rb'
-require 'basic_extensions.rb'
-require 'derived_field_extensions.rb'
+require 'narp/node_extensions.rb'
+require 'narp/basic_extensions.rb'
+require 'narp/derived_field_extensions.rb'
 
 module Narp
   class ReformatField < Treetop::Runtime::SyntaxNode
