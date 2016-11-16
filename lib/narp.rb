@@ -10,7 +10,7 @@ require 'narp/narp.treetop'
 require 'json'
 
 module Narp
-  class Narpy < OpenStruct
+  class Narp < OpenStruct
     include Singleton
   	
     @@seq = 0
@@ -255,7 +255,7 @@ module Narp
 end
 
 def myapp 
-  Narp::Narpy.instance
+  Narp::Narp.instance
 end
 
 # def parse_options

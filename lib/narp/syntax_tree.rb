@@ -3,8 +3,11 @@ module Narp
     require 'treetop'
     def initialize(grammar_class)
       @parser = ''
+      
     	Treetop.load(::File.expand_path(::File.join(::File.dirname(__FILE__), "#{grammar_class.to_filename}.treetop")))
-      eval( "@parser = #{grammar_class}Parser.new " )
+      g_class = grammar_class.split('::').last << 'Parser.new'
+      # eval( "@parser = #{grammar_class}Parser.new " )
+      eval( "@parser = #{g_class} " )
     end
     
     def parse(input)

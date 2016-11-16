@@ -1,12 +1,12 @@
 require 'open3'
 
-def narpy_executable
-	File.expand_path(File.join( Pathname.new(__FILE__).dirname, '..', '..', 'bin', 'narpy'))
+def narp_executable
+	File.expand_path(File.join( Pathname.new(__FILE__).dirname, '..', '..', 'bin', 'narp'))
 end
 
 Given(/^that Narp is invoked with program_definition from (app_spec_\S+)$/) do |yml|
   input = yml['program_definition'].gsub('"', '\"').gsub("\n", ' ')
-	cmd = %Q[ #{narpy_executable} "#{input}" ]
+	cmd = %Q[ #{narp_executable} "#{input}" ]
   puts "About to execute: #{cmd}"
 
 	Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|

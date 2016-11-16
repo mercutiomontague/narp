@@ -8,6 +8,7 @@ end
 
 When(/^(parsed by \S+)\s*(.+)?$/) do |parser_name, flags|
   myapp.init if flags =~ /--i/i
+  puts "parser_name is #{parser_name}"
   @tree = Narp::SyntaxTree.new(parser_name).parse(@input)
   @cur = @tree
   puts @tree.inspect if flags =~ /--v/i 
