@@ -10,7 +10,7 @@ require 'narp/narp.treetop'
 require 'json'
 
 module Narp
-  class NarpApp < OpenStruct
+  class Narpy < OpenStruct
     include Singleton
   	
     @@seq = 0
@@ -229,7 +229,7 @@ module Narp
   
     def postprocess
       # Retrieve the finished files from hdfs, cut out any excess bytes(record length) and compress 
-      outfiles.collect{|o| ["#!/bin/bash", o.move_hdfs2post_stage, o.post_process, o.move_post2s3, o.cleanup].join("\n") }.join("\n")
+      outfiles.collect{|o| ["#!/bin/bash", o.move_hdfs2post_stage, o.post_process, o.move_post2s3].join("\n") }.join("\n")
     end
 
     def cleanup_db
@@ -255,7 +255,7 @@ module Narp
 end
 
 def myapp 
-  Narp::NarpApp.instance
+  Narp::Narpy.instance
 end
 
 # def parse_options

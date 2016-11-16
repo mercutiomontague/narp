@@ -1,4 +1,4 @@
-@narp_app
+@narpy
 Feature: Parse the definition of a an ETL program using the Narp language
   In order to allow users to specify an ETL program
   As a developer
@@ -34,8 +34,8 @@ Feature: Parse the definition of a an ETL program using the Narp language
 
   Scenario: Providing a complete application definition
 		Given an existing app that is reinitialized 
-    And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 
-    And the app parses /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 
+    And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8
+    And the app parses /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8
     And the app parses /fields my_col 4:1 integer 
     And the app parses /fields col3 3:3 - 4:7 
     And the app parses /fields dateCol 5:1 datetime mm/yy-dd0 hh 
@@ -45,7 +45,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /outfile 'Her text_file.txt' Sequential compressed
     And the app parses /joinkeys col3
     And the app parses /include cond11
-    And the app parses /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 
+    And the app parses /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 NUMBER_OF_COLUMNS 8
     And the app parses /joinkeys my_col 
 		And the app parses /join unpaired leftside
     And the app parses /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22
@@ -58,7 +58,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
 
   Scenario: Parse a definition where all options/commands are on one line
 		Given an existing app that is reinitialized 
-    And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 /fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 /include cond2
+    And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8/infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8/fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 NUMBER_OF_COLUMNS 8 /include cond2
     Then the ddl should match app_spec_0 
      And the preprocess should match app_spec_0
      And the hql should match app_spec_0
@@ -66,8 +66,8 @@ Feature: Parse the definition of a an ETL program using the Narp language
 
   Scenario: Defining a 'splitter' app
    	Given an existing app that is reinitialized 
-     And the app parses /infile 'My_text_file.txt' alias moo "\t"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 
-     And the app parses /infile 'Your_text_file.txt' alias zoo fstopafter 87 
+     And the app parses /infile 'My_text_file.txt' alias moo "\t"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 
+     And the app parses /infile 'Your_text_file.txt' alias zoo fstopafter 87  NUMBER_OF_COLUMNS 8
      And the app parses /fields my_col 2:1 integer 
      And the app parses /fields col3 1:3 - 1:
      And the app parses /fields dateCol 3: - 4: datetime yy/mm  
@@ -77,7 +77,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
      And the app parses /outfile 'Her_text_file.txt' Sequential compressed
      And the app parses /joinkeys col3
      And the app parses /include cond11
-     And the app parses /infile 'third_file.txt' alias foo 
+     And the app parses /infile 'third_file.txt' alias foo  NUMBER_OF_COLUMNS 8
      And the app parses /joinkeys my_col 
    	 And the app parses /join unpaired leftside
      And the app parses /outfile 'Our_text_file.txt' Sequential compressed highcompression 49 325 "z" overwrite recordnumber 22
@@ -89,7 +89,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
   
   Scenario: Defining another 'splitter' app
   	Given an existing app that is reinitialized 
-    And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 
+    And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 8
     And the app parses /collatingsequence DEFAULT ASCII
     And the app parses /fields form 2:19 - 2:27
     And the app parses /fields desc 7:1 - 7:8
@@ -110,7 +110,8 @@ Feature: Parse the definition of a an ETL program using the Narp language
   
   Scenario: Defining an app with derived fields and references
   	Given an existing app that is reinitialized 
-    And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 
+    And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 8
+ 
     And the app parses /collatingsequence DEFAULT ASCII
     And the app parses /fields num 1:10 - 1:18 integer
     And the app parses /fields form 2:19 - 2:27
@@ -137,7 +138,8 @@ Feature: Parse the definition of a an ETL program using the Narp language
   
   Scenario: Defining an app with derived fields and references
   	Given an existing app that is reinitialized with zions domain
-    And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 
+    And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 8
+ 
     And the app parses /collatingsequence DEFAULT ASCII
     And the app parses /fields num 1:10 - 1:18 integer
     And the app parses /fields form 2:19 - 2:27
@@ -165,9 +167,10 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the hql should match app_spec_4
     And the postprocess should match app_spec_4
   
+  @current
   Scenario: Parse a definition to obtain the processing commands 
   	Given an existing app that is reinitialized 
-    And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data__2016-11-03.txt STREAM CRLF "\t" /copy
+    And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data__2016-11-03.txt STREAM CRLF "\t" NUMBER_OF_COLUMNS 8 /copy
     And the app parses /collatingsequence DEFAULT ASCII
     And the app parses /fields cus 3:1 - 3:7
     And the app parses /condition header  (cus = "0000019")
@@ -179,9 +182,15 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include billing
     And the app parses /outfile /etl/dev/source/text_253/ref/data_remain__2016-11-03.txt overwrite stream crlf
     And the app parses /include remaining
-    Then the ddl should match app_spec_5 
-    And the preprocess should match app_spec_5
-    And the hql should match app_spec_5
-    And the postprocess should match app_spec_5
+    # Then the ddl should match app_spec_5 
+    # And the preprocess should match app_spec_5
+    # And the hql should match app_spec_5
+    # And the postprocess should match app_spec_5
+    Then show the app preprocess
+    And show the app ddl 
+    And show the app hql
+    And show the app postprocess
+    And show the app cleanup_db
+    And show the app cleanup_fs
 		
 

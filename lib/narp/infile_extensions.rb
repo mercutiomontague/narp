@@ -11,25 +11,23 @@ module Narp
   end
 
   class NumberOfColumns < IntegerNode
+    def to_i
+      to_s.to_i
+    end
   end
 
   class Infile < File
     attribute [Alias, :nick], SkipTo, StopAfter, [NumberOfColumns, :_number_of_columns]
 
     def number_of_columns
-      _number_of_columns || inferred_column_count
-    end
-
-    def inferred_column_count
-      8
+      (_number_of_columns || compute_number_of_columns).to_i
     end
 
     def file_fields
-      (1 .. inferred_column_count).collect{|c| OpenStruct.new(:name => myapp.column_name(c))}
+      (1 .. number_of_columns).collect{|c| OpenStruct.new(:name => myapp.column_name(c))}
     end
 
     def hive_name
-      # "#{schema}.#{nick_name}" 
       nick_name
     end
 
@@ -49,7 +47,7 @@ module Narp
       myapp.pre_path
     end
 
-    def analyze
+    def compute_number_of_columns 
 			# head -1 data_2016-11-03.txt | awk -F '\t' '{print NF}'
     end
 

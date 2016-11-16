@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-require 'narp.rb'
+require 'narpy.rb'
 
 def parse_options
   options = OpenStruct.new
