@@ -122,7 +122,7 @@ Feature: Parse the definition for fields
   Scenario Outline: Things that should cause a parse error 
     Given an input /fields <input> 
 		And the app has collations <collation_list>
-    Then parsing by FieldsG should raise ParseError 
+    Then parsing by FieldsG should raise Narp::ParseError 
 
 		Examples:
 		| input 																		| collation_list | message 														|

@@ -37,7 +37,6 @@ Feature: Parse the definition basic elements of the Narp language
       | /\S+\t\S/            | love	it          | love	i   |
 
   
-  @current
   Scenario Outline: Providing a numeric definition
     Given an input <input>
     When parsed by BasicG 
@@ -53,11 +52,10 @@ Feature: Parse the definition basic elements of the Narp language
       | 8,333.3 | EditedNumeric     | 8333.3        |
     
 
-
-
+  @current
   Scenario Outline: Providing an invalid regular expression definition should cause Parse Error
     Given an input <input>
-    Then parsing by BasicG should raise ParseError 
+    Then parsing by BasicG should raise Narp::ParseError 
   
     Examples:
       | input               | 

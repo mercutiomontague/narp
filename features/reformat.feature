@@ -23,7 +23,7 @@ Feature: Parse the definition for reformat
   Scenario Outline: Things that should cause a parse error 
     Given an input /fields <input> 
 		And the app has numeric fields <fields>
-    Then parsing by ReformatG should raise ParseError 
+    Then parsing by ReformatG should raise Narp::ParseError 
 
 		Examples:
 		|  input                              | fields                | 

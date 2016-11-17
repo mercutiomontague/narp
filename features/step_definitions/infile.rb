@@ -11,14 +11,10 @@ Then(/^the 1st element is a (\S+)$/) do |class_name|
 end
 
 
-Then(/^the original filename is (.+)$/) do |match|
-  expect( @cur.name.value  ).to eq( match )
-end
-
-Then(/^the filename hash is (.+)$/) do |match|
+Then(/^the filename is (.+)$/) do |match|
   expect( @cur.name.to_s  ).to eq( match )
 end
-
+ 
 Then(/^the alias is (\S+)$/) do |match|
   expect( @cur.nick_name  ).to eq( match )
 end

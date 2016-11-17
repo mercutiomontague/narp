@@ -1,5 +1,5 @@
 require 'narp/node_extensions.rb'
-require 'digest'
+# require 'digest'
 
 module Narp
 
@@ -8,15 +8,15 @@ module Narp
       text_value.strip.sub(/^["']/, '').sub(/["']$/, '')
     end
 
-    def myhash
-      fname = ::File::basename(value)  
-      value =~ /(.+)#{fname}/
-      fname << '_' << "#{Digest::SHA256.hexdigest( [$1, myapp.domain].compact.join ) }"
-    end
+    # def myhash
+    #   fname = ::File::basename(value)  
+    #   value =~ /(.+)#{fname}/
+    #   fname << '_' << "#{Digest::SHA256.hexdigest( [$1, myapp.domain].compact.join ) }"
+    # end
 
-    def to_s
-      myhash
-    end
+    # def to_s
+    #   myhash
+    # end
 
   end
 

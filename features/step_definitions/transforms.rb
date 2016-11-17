@@ -10,6 +10,7 @@ end
 
 Transform /^raise (\S+)$/ do |exception|
 	except_class = ''
+  puts "exception is #{exception}"
 	eval( "except_class = #{exception}" )
 	except_class
 end

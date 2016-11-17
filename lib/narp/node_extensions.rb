@@ -43,7 +43,9 @@ class MockObject < OpenStruct
   end
 end
 
-class ParseError < Exception
+module Narp
+  class ParseError < Exception
+  end
 end
 
 class String

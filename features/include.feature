@@ -21,7 +21,7 @@ Feature: Parse the include clause for the Narp language
   Scenario Outline: Providing an invalid reference to a condition
     Given an input /include <input>
 		And the app has conditions <conditions_list>
-    Then parsing by IncludeG should raise ParseError 
+    Then parsing by IncludeG should raise Narp::ParseError 
 
     Examples:
       | input             | conditions_list       |

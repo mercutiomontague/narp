@@ -26,7 +26,7 @@ Feature: Parse the join clause for the Narp language
   @join
   Scenario Outline: Join clause that should cause a parse error 
     Given an input /join <input> 
-    Then parsing by SimpleG should raise ParseError 
+    Then parsing by SimpleG should raise Narp::ParseError 
 
     Examples:
       | input   |

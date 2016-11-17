@@ -26,7 +26,7 @@ Feature: Parse the join key clause for the Narp language
     Given an input /joinkeys <input> 
     And an existing app that is reinitialized
 		And the app has numeric fields <fields>
-    Then parsing by JoinKeysG should raise ParseError 
+    Then parsing by JoinKeysG should raise Narp::ParseError 
 
     Examples:
       | input                   | fields                  | 
