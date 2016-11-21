@@ -8,7 +8,7 @@ Feature: Parse a narp statement
     Given an input /infile 'My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87
     When parsed by Narp 
     Then I have a Infile at the root
-    And the original filename is My text_file.txt
+    And the filename is My text_file.txt
     And the field seperator is s
     And the alias is moo
     And the record length is 15, 349
@@ -23,7 +23,7 @@ Feature: Parse a narp statement
     When parsed by Narp 
     Then I have a Outfile at the root
     And I have an organization
-    And the original filename is My text_file.txt
+    And the filename is My text_file.txt
     And the organization is sequential
     And the compressed is normal 
     And the record length is 49, 325

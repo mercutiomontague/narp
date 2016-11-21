@@ -8,15 +8,13 @@ module Narp
       text_value.strip.sub(/^["']/, '').sub(/["']$/, '')
     end
 
-    # def myhash
-    #   fname = ::File::basename(value)  
-    #   value =~ /(.+)#{fname}/
-    #   fname << '_' << "#{Digest::SHA256.hexdigest( [$1, myapp.domain].compact.join ) }"
-    # end
+    def prefix
+      ::File.dirname(value) == '.' ? nil : ::File.dirname(value)
+    end
 
-    # def to_s
-    #   myhash
-    # end
+    def basename
+      ::File.basename(value)
+    end
 
   end
 
@@ -99,12 +97,8 @@ module Narp
 			OpenStruct.new(:value=>"\t", :escaped_value => '\t')
 		end
 
-    # def schema
-    #   myapp.schema
-    # end
-
     def hdfs_path
-      "hdfs://#{myapp.hdfs_in_path}/#{name}"
+      ::File.join('hdfs:/', myapp.hdfs_in_path, name.to_s)
     end
 
     def hive_name
@@ -120,19 +114,20 @@ module Narp
     end
 
     def drop_ddl
-      "DROP EXTERNAL TABLE #{hive_name};"
+      "DROP TABLE #{hive_name};"
     end
 
     def ddl
       raise ArgumentError.new("The file type #{organization.value} isn't currently supported") unless organization.nil? || organization.value == 'sequential'
-      "SET textinputformat.record.delimiter='#{line_seperator}';\n" << 
+      %Q[SET textinputformat.record.delimiter="#{line_seperator}";\n] << 
       "CREATE EXTERNAL TABLE #{hive_name}\n(\n" <<
       "\t" << fields_string <<
       "\n)\n" <<
       "ROW FORMAT\n" <<
       "\tDELIMITED FIELDS TERMINATED BY '#{field_seperator.escaped_value}'\n" <<
+      "\tNULL DEFINED AS ''\n" <<
       "STORED AS TEXTFILE\n" <<
-      "LOCATION '#{hdfs_path}'\n;"
+      "LOCATION '#{hdfs_path}/'\n;"
     end
 
   end

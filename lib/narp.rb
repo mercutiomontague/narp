@@ -8,6 +8,8 @@ require 'narp/syntax_tree.rb'
 require 'narp/node_extensions.rb'
 require 'narp/narp.treetop'
 require 'json'
+require 'narp/hive/adapter.rb'
+require 'narp/hive/fs.rb'
 
 module Narp
   class Narp < OpenStruct
@@ -15,13 +17,11 @@ module Narp
   	
     @@seq = 0
     @@numeric_types = ['integer', 'float', 'dfloat']
-    attr :domain, :s3_in_bucket, :s3_out_bucket
-    attr :hdfs_out_path, :hdfs_in_path 
-    attr :pre_stage_path, :pre_path, :post_stage_path, :post_path
     attr :infiles, :outfiles, :includes, :joinkeys
     attr :collations, :conditions, :joins, :fields, :output_spec, :collating_sequences
-    attr :derived_fields
-    attr :output_spec
+    attr :derived_fields, :domain
+    attr :copy
+    attr :adapter, :fs
   
     def initialize
       init
@@ -42,24 +42,27 @@ module Narp
       @includes = IncludesList.new
       @joinkeys = JoinKeysList.new
       @output_spec = OutputSpec.new
-      @s3_in_bucket = "s3://narp-in-dev"
-      @s3_out_bucket = "s3://narp-out-dev"
-      @hdfs_in_path = '/user/hadoop/in'
-      @hdfs_out_path = "/user/hadoop/out"
-      @pre_stage_path = "~/pre_stage"
-      @pre_path = "~/pre"
-      @post_stage_path = "~/post_stage"
-      @post_path = "~/post"
-      @output_spec = OutputSpec.new
+      @adapter = Hive::Adapter.new
+      @fs = Hive::Fs.new
   	end
 
-    def s3_in_path
-      [s3_in_bucket, domain].join("/")
-    end
+    PATH_DEFAULTS = {s3_in_path: "s3://narp-in-dev",
+                      s3_out_path: "s3://narp-out-dev",
+                      hdfs_in_path: '/user/hadoop/in',
+                      hdfs_out_path: "/user/hadoop/out",
+                      pre_stage_path: "~/pre_stage",
+                      pre_path: "~/pre",
+                      post_stage_path: "~/post_stage",
+                      post_path: "~/post",
+                      log_path: "~/log" 
+                    }
 
-    def s3_out_path
-      [s3_out_bucket, domain].join("/")
-    end
+
+    [:s3_in_path, :s3_out_path, :hdfs_in_path, :hdfs_out_path, :pre_stage_path, :pre_path, :post_path, :post_stage_path].each {|n|
+      define_method( n ) {
+        ::File.join(PATH_DEFAULTS[n], @domain || '')
+      }
+    }
   
     def parse(input)
   		# Not sure why but I need to add the fake term dummyCommandSonny otherwise the first search term (/collatingsequence) fails to match
@@ -174,60 +177,35 @@ module Narp
     def schema
       'stage'
     end
-  
+
     def column_name(num)
       "col_#{num}"
     end
-
-    def all_fields
+  
+    def declared_fields
       [fields, derived_fields].flatten.compact
     end
-  
-  	def ddl
-      ["CREATE DATABASE #{domain};", 
-       use_db, 
-  		[infiles.collect{|i| i.ddl}, outfiles.collect{|o| o.ddl}]].flatten.join("\n\n")
-  	end
-  
-    # Generate the hql for the lhs or rhs tables. Tables on each side are unioned.
-    def table_clause(tables)
-      return nil unless tables.any?
-      "(\n" << tables.collect{|i| 
-        "SELECT\n" << ("\t" << 
-           fields.collect{|f| f.to_column_expression}.join("\n\t, ")).sql_justify_on_alias << 
-        "\nFROM\n\t#{i.hive_name}"
-      }.join("\nUNION ALL\n") << "\n) #{tables == infiles.lhs_tables ? :lhs : :rhs}"
-    end
-  
-    def src_clause
-      [table_clause(infiles.lhs_tables), 
-       join_type, 
-       table_clause(infiles.rhs_tables), 
-       joinkeys.predicate_hql
-      ].flatten.compact.join("\n")
-    end
-  
-    def src_sql
-      "SELECT\n" <<
-        ("\t" << output_spec.src_column_expressions.join("\n\t, ")).sql_justify_on_alias << "\n" << 
-      "FROM\n" << src_clause.myindent << "\n"
+
+    def lhs_tables
+      infiles.lhs_tables
     end
 
-    def use_db
-      "USE #{domain};"
-    end
-  
-    def hql
-      use_db << "\n" <<
-      "FROM (\n#{src_sql.myindent}\n)src\n" << 
-      outfiles.collect{|o| o.populate_hql }.join("\n\n") << "\n;"
+    def rhs_tables
+      infiles.rhs_tables
     end
 
-    def preprocess
-      # Unzip, Extract the necessary lines (:%s/skipto, stopafter) and finally put the files where HIVE can find them.
-      infiles.collect{|i| ["#!/bin/bash\n", i.init_pre, i.move_s32pre_stage, i.pre_process, i.move_pre2hdfs, "\n"].join("\n") }.join("\n")
-    end
+    [:ddl, :hql, :cleanup_db].each {|meth|
+      define_method( meth ) {
+        adapter.send(meth)
+      }
+    }
 
+    [:preprocess, :postprocess, :cleanup_fs].each {|meth|
+      define_method(meth) {
+        fs.send(meth)
+      }
+    }
+    
     def analyze_sources
       JSON.generate( infiles.select{|i| i.analyze}.inject({}){ |memo, i| 
           memo[i.original_name] = i.analyze
@@ -235,19 +213,6 @@ module Narp
       )
     end
   
-    def postprocess
-      # Retrieve the finished files from hdfs, cut out any excess bytes(record length) and compress 
-      outfiles.collect{|o| ["#!/bin/bash", o.move_hdfs2post_stage, o.post_process, o.move_post2s3].join("\n") }.join("\n")
-    end
-
-    def cleanup_db
-      [use_db, [infiles, outfiles].flatten.collect{|o| o.drop_ddl}, "DROP DATABASE #{domain};"].flatten.join("\n")
-    end
-
-    def cleanup_fs
-      [infiles, outfiles].flatten.collect{|o| o.cleanup}.join("\n")
-    end
-
 		def generate_json_output
 			::JSON.pretty_generate( {:preprocess => preprocess, :ddl => ddl, 
 										        		:hql => hql, 

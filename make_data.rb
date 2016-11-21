@@ -25,7 +25,7 @@ File.open('features/fixtures/data_2016-11-03.txt', 'w') {|fh|
           remainder_row
       end
       # fh.puts r
-      fh.print "#{r}\r\n"
+      fh.print "#{r}\r"
   }
 }
 

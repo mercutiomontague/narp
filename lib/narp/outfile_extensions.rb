@@ -27,61 +27,97 @@ module Narp
 		end
 
     def file_fields
-      z = myapp.output_spec.column_names_for(self)
-      record_numbering ? z.unshift( 'row_num' ) : z
-    end
+      z = if myapp.copy
+        [myapp.lhs_tables.first.file_fields,
+          myapp.rhs_tables.empty? ? nil : 
+            myapp.rhs_tables.first.file_fields.collect{|f| OpenStruct.new(name: "rhs_" << f.name)}
+        ].flatten.compact
+      else
+        myapp.output_spec.column_names_for(self)
+      end
 
-    def fields_string
-      # Remove the prefixes
-      file_fields.collect{|i| "#{i.gsub(/^lhs_|rhs_/,'')} varchar(65000)"}.join("\n\t, ") 
-    end
-
-    def select_column_names 
-      z = myapp.output_spec.column_names_for(self)
-      record_numbering ? z.unshift( "ROW_NUMBER() OVER () + #{record_numbering && record_numbering.value} AS row_num") : z
+      record_numbering ? z.unshift( OpenStruct.new(name: 'row_num')) : z
     end
 
     def stage
-      myapp.post_stage_path
+      ::File.join(myapp.post_stage_path, name.prefix)
     end
 
-    def work
-      myapp.post_path
+    def stage_dest
+      ::File.join(stage, name.basename)
+    end
+
+    def hdfs_path
+      ::File.join('hdfs:/', myapp.hdfs_out_path, name.to_s)
+    end
+
+    def hdfs_post_process_path
+      ::File.join('hdfs:/', myapp.hdfs_out_path, name.to_s, 'post_process')
+    end
+
+    def record_numbering_sql
+      "ROW_NUMBER() OVER () + #{record_numbering && record_numbering.value} AS row_num" 
     end
 
     def populate_hql
+      cols = file_fields.collect{|r| 
+        if r.name == 'row_num' 
+          record_numbering_sql 
+        else 
+          r.name =~ /^rhs_/ ? r.name : "lhs_#{r.name}"
+        end
+      }.join("\n\t, ")
+
       ["INSERT #{hive_write_mode} TABLE #{hive_name}",
-       "SELECT\n\t" << select_column_names.join("\n\t, "), 
+       "SELECT\n\t" << cols,
        conditions.empty? ? nil : "WHERE\n\t" << conditions.collect{|c| c.to_hql }.join("\n\tAND ") 
       ].compact.join("\n")
     end
 
+    def init_post
+      [
+        "mkdir -p #{stage}"
+      ]
+    end
+
+    # If we post-processed the data (ie: by changing the row delimiter or cutting the record length) then
+    # the source path is different
     def move_hdfs2post_stage
-      "hadoop fs -getmerge #{hdfs_path} #{stage}/#{name}"
+      ["hadoop fs -getmerge #{post_process ? hdfs_post_process_path : hdfs_path} #{stage_dest}",
+       "gzip #{stage_dest}"
+      ]
     end
 
     def post_process
       warn("Minimum record lengths are not yet implimented and was ignored for [#{name}]") if record_length && record_length.min > 1
-      [record_length.nil? ?
-        "mv #{stage}/#{name} #{work}/#{name}" :
-          "cut -c1-#{record_length.max} #{stage}/#{name} > #{work}/#{name}",
-        "gzip #{work}/#{name}"
-      ]
+
+      return nil unless fix_row_delimiter || fix_row_length
+      ["hadoop fs -cat #{hdfs_path}/*", fix_row_length, fix_row_delimiter, "hadoop fs -put - #{hdfs_post_process_path}"].compact.join(' | ')
+    end
+
+    def fix_row_delimiter
+      if line_seperator == '\r'
+        %q{sed 's/$/\r/g' | tr -d '\n'} 
+      elsif line_seperator == '\r\n'
+        %q{sed 's/$/\r/g'} 
+      end
+    end
+
+    def fix_row_length
+      "cut -c1-#{record_length.max}" if record_length
     end
 
     def cleanup 
       [
-        "set +e",
-        "rm #{stage}/#{name}", 
-        "rm #{work}/#{name}.gz",
-        "rm #{work}/#{name}",
-        "hadoop fs -rmr #{hdfs_path}", 
-        "set -e"
+        "set -e",
+        "rm -rf #{stage}", 
+        "hadoop fs -rm -r #{hdfs_path}", 
+        "set +e"
       ]
     end
 
     def move_post2s3
-      "aws s3 cp #{work}/#{name}.gz #{myapp.s3_out_path}/#{name}.gz"
+      "aws s3 cp #{stage_dest}.gz #{::File.join(myapp.s3_out_path, name.to_s)}.gz"
     end
   end
 
@@ -89,4 +125,3 @@ module Narp
   end
   
 end
-

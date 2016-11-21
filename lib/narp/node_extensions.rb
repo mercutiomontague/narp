@@ -178,3 +178,14 @@ class Treetop::Runtime::SyntaxNode
 
 end
 
+module Narp
+  module MyAppAccessor
+    def method_missing(meth, *arg, &block)
+      if myapp.respond_to?(meth)
+        myapp.send(meth, *arg, &block)
+      else
+        raise ScriptError.new("Undefined method #{meth}")
+      end
+    end
+  end
+end

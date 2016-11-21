@@ -36,11 +36,11 @@ module Narp
 		end
 
     def lhs_fields
-      myapp.all_fields.select{|f| lhs_names.detect{|d| d.value == f.name}}
+      myapp.declared_fields.select{|f| lhs_names.detect{|d| d.value == f.name}}
     end
 
     def rhs_fields
-      myapp.all_fields.select{|f| rhs_names.detect{|d| d.value == f.name}}
+      myapp.declared_fields.select{|f| rhs_names.detect{|d| d.value == f.name}}
     end
 
   end
@@ -67,15 +67,22 @@ module Narp
     end
 
     def column_names_for(outfile)
-      [any? && fields(outfile) || myapp.all_fields].flatten.compact.collect{|c| 
+      [any? && fields(outfile) || myapp.declared_fields].flatten.compact.collect{|c| 
         side(c) ? "#{side(c)}_#{c.name}" : c.name 
       }
     end
 
     def src_column_expressions 
-      myapp.all_fields.collect{|f|
+      c1 = myapp.declared_fields.collect{|f|
         side(f) ? "#{side(f)}.#{f.name} AS #{side(f)}_#{f.name}" : f.to_column_expression
       }
+
+      if myapp.copy
+        c1 = [c1, myapp.lhs_tables.any? && myapp.lhs_tables.first.file_fields.collect{|c| "lhs.#{c.name} AS lhs_#{c.name}"}, 
+        myapp.rhs_tables.empty? ? nil : myapp.rhs_tables.first.file_fields.collect{|c| "rhs.#{c} AS rhs_#{c}"}]
+      end
+
+      c1.flatten.compact
     end
 
     # Returns lhs for tables/fields/derived fields that are required for left side joins/projections
@@ -90,6 +97,11 @@ module Narp
       end
     end
 
+  end
+
+
+  # This class provides logic for determining the columns
+  class InputSpec
   end
 
 
