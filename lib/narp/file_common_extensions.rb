@@ -5,7 +5,8 @@ module Narp
 
   class FileIdentifier < TerminalNode
     def value
-      text_value.strip.sub(/^["']/, '').sub(/["']$/, '')
+      # text_value.strip.sub(/^["']/, '').sub(/["']$/, '')
+      text_value.strip
     end
 
     def prefix

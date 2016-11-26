@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 #
 require 'narp.rb'
+require 'json'
 
 def parse_options
   options = OpenStruct.new
@@ -13,12 +14,20 @@ def parse_options
 
 		opts.separator mess
 
-    opts.on('--domain NAMESPACE', 'Specify the namespace to group this program within') do |n|
-      options.domain = n
-    end
-
     opts.on('--file PROGRAM_FILE', 'Read the Narp program definition from PROGRAM_FILE') do |q|
       options.program_file = q
+    end
+
+    opts.on('--step-names', 'Return a list of the step-names') do 
+      options.step_names_only = true
+    end
+
+    opts.on('--input-mapping', 'Return a json array mapping input files to their s3 destination') do
+      options.input_mapping = true
+    end
+
+    opts.on('--output-mapping', 'Return a json array mapping output files to their s3 destination') do
+      options.output_mapping = true
     end
 
   end
@@ -32,7 +41,17 @@ def read_program_file(opt)
 end
 
 opts = parse_options
-myapp.init(opts.domain)
 program = read_program_file(opts) || ARGV.join(' ')
 myapp.parse(program)
-puts myapp.generate_json_output
+
+result =  if opts.step_names_only
+            myapp.processing_steps.keys
+          elsif opts.input_mapping
+            myapps.infiles.s3_mappings
+          elsif opts.output_mapping
+            myapps.infiles.s3_mappings
+          else
+            myapp.processing_steps
+          end
+
+puts ::JSON.pretty_generate( result )

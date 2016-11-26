@@ -20,7 +20,7 @@ module Narp
     attribute [Alias, :nick], SkipTo, StopAfter, [NumberOfColumns, :_number_of_columns]
 
     def number_of_columns
-      (_number_of_columns || compute_number_of_columns).to_i
+      _number_of_columns || 5
     end
 
     def file_fields
@@ -50,7 +50,11 @@ module Narp
     end
 
     def compute_number_of_columns 
-			# head -1 data_2016-11-03.txt | awk -F '\t' '{print NF}'
+      # Process the first line to determine the number of records. RS == record seperator, FS = field seperator
+      # awk -v RS='\r' -v FS='\t' 'NR==1'  features/fixtures/data_2016-11-03.txt | awk -F '\t' '{print NF}' 
+      ["col_cnt=`#{awk_preamble} 'NR==1' #{work}/#{name.basename} | awk -F '\t' '{print NF}'`",
+        "echo /infile #{name.to_s} NUMBER_OF_COLUMNS $col_cnt"
+      ].join(" && ")
     end
 
     def init_pre
@@ -75,20 +79,32 @@ module Narp
       ]
     end
 
+    # awk to process a text file with record and field seperator defined
+    def awk_preamble
+      "awk -v RS='#{line_seperator}' -v FS='#{field_seperator}' "
+    end
+
     # Extract the lines that need processing or just a symlink to the original file if no work is needed
     def pre_process
       warn("Minimum record lengths are not yet implimented and was ignored for [#{name}]") if record_length && record_length.min > 1
       if skip_to.nil? && stop_after.nil? # && record_length.nil?
         "ln -s #{stage}/#{name.basename} #{work}/#{name.basename}"
       else
-        ops = [skip_to ? "tail -$((tot - #{skip_to.value}))" : nil, 
-         stop_after ? "head -#{stop_after.value}" : nil,
-         record_length ? "cut -c1-#{record_length && record_length.max}" : nil
-        ].compact
-        ops[0] = ops.first << " #{stage}/#{name.basename}"
+        # awk -v RS='\r' -v FS='\t' 'NR=>1 && NR<=4'  features/fixtures/data_2016-11-03.txt
+        ops = [skip_to ? "NR >= #{skip_to.value}" : nil,
+                stop_after ? "NR <= #{stop_after.value}" : nil
+              ].compact
+        cmd = [awk_preamble, ops.join(' && '), "<< #{stage}/#{name.basename}"].join(' ')
 
-        "tot=`wc -l #{stage}/#{name.basename} | cut -f1 -d' '\n" << ops.join(" | ") << " > #{work}/#{name.basename}\n"
+        cmd << " | cut -c1-#{record_length && record_length.max}" if record_length
+        cmd << " > #{work}/#{name.basename}\n"
+
       end
+    end
+
+    def analyze
+      return if _number_of_columns      
+      compute_number_of_columns
     end
 
     def move_pre2hdfs

@@ -58,9 +58,9 @@ module Narp
                     }
 
 
-    [:s3_in_path, :s3_out_path, :hdfs_in_path, :hdfs_out_path, :pre_stage_path, :pre_path, :post_path, :post_stage_path].each {|n|
-      define_method( n ) {
-        ::File.join(PATH_DEFAULTS[n], @domain || '')
+    PATH_DEFAULTS.each {|k, v|
+      define_method( k ) {
+        ::File.join(v, @domain || '')
       }
     }
   
@@ -206,24 +206,26 @@ module Narp
       }
     }
     
-    def analyze_sources
-      JSON.generate( infiles.select{|i| i.analyze}.inject({}){ |memo, i| 
-          memo[i.original_name] = i.analyze
-        } 
-      )
+    def analyze
+      infiles.inject({}) {|memo, i| 
+        if i.analyze
+          memo[i.name.to_s] = i.analyze 
+        end
+        memo
+      }
     end
   
-		def generate_json_output
-			::JSON.pretty_generate( {:preprocess => preprocess, :ddl => ddl, 
-										        		:hql => hql, 
-                                :cleanup_db => cleanup_db,
-										        		:postprocess => postprocess, 
-                                :cleanup_fs => cleanup_fs,
-                                :s3_input_mapping => infiles.s3_mappings,
-										        		:s3_output_mapping => outfiles.s3_mappings
-										        	 }
-										        ) 
+		def processing_steps
+			{'Preprocess' => preprocess,  
+       'Analyze' => analyze,
+       'Initialize' => ddl, 
+			 'Process' => hql, 
+			 'Postprocess' => postprocess, 
+       'Cleanup Datbase' => cleanup_db,
+       'Cleanup Filesystem' => cleanup_fs
+			}
 		end
+
   end
 end
 

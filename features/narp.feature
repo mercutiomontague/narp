@@ -170,7 +170,8 @@ Feature: Parse the definition of a an ETL program using the Narp language
   @current
   Scenario: Parse a definition to obtain the processing commands 
   	Given an existing app that is reinitialized 
-    And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt STREAM cr "\t" NUMBER_OF_COLUMNS 5 /copy
+    # And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt STREAM cr "\t" NUMBER_OF_COLUMNS 5 /copy
+    And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt STREAM crlf "\t" /copy
     And the app parses /collatingsequence DEFAULT ASCII
     And the app parses /fields cus 3:1 - 3:7
     And the app parses /condition header  (cus = "0000019")
@@ -187,6 +188,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     # And the hql should match app_spec_5
     # And the postprocess should match app_spec_5
     Then show the app preprocess
+    And show the app analyze
     And show the app ddl 
     And show the app hql
     And show the app postprocess

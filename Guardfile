@@ -19,8 +19,6 @@
 # logger device: '~/guard.log'
 
 opts = {
-  # :access_key_id      => 'AKIAJT3BDIO6Y7H4NLGA',
-  # :secret_access_key  => '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',
   :bucket             => 'narpy-log-dev',
   :region             => 'us-east-1',
   :profile            => 'narp-dev',
