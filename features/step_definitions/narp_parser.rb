@@ -76,7 +76,13 @@ Then(/^the app join clauses are (.+)$/) do |clauses|
 end
 
 Then(/^show the app (.+)$/) do |type|
-  puts myapp.send(type)
+  if type == 'infile s3 mappings'
+    puts myapp.infiles.s3_mappings 
+  elsif type == 'outfile s3 mappings'
+    puts myapp.outfiles.s3_mappings 
+  else
+    puts myapp.send(type)
+  end
 end
 
 Then(/^my app has (.+) jointype$/) do |side|

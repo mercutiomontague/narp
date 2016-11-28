@@ -194,5 +194,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And show the app postprocess
     And show the app cleanup_db
     And show the app cleanup_fs
+    And show the app infile s3 mappings
+    And show the app outfile s3 mappings
 		
 

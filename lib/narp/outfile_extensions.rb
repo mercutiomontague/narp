@@ -122,6 +122,9 @@ module Narp
   end
 
   class OutfileList < FilesList
+    def s3_path_prefix
+      myapp.s3_out_path
+    end
   end
   
 end

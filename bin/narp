@@ -22,11 +22,11 @@ def parse_options
       options.step_names_only = true
     end
 
-    opts.on('--input-mapping', 'Return a json array mapping input files to their s3 destination') do
+    opts.on('--input-mappings', 'Return a json array mapping input files to their s3 destination') do
       options.input_mapping = true
     end
 
-    opts.on('--output-mapping', 'Return a json array mapping output files to their s3 destination') do
+    opts.on('--output-mappings', 'Return a json array mapping output files to their s3 destination') do
       options.output_mapping = true
     end
 
@@ -49,7 +49,7 @@ result =  if opts.step_names_only
           elsif opts.input_mapping
             myapps.infiles.s3_mappings
           elsif opts.output_mapping
-            myapps.infiles.s3_mappings
+            myapps.outfiles.s3_mappings
           else
             myapp.processing_steps
           end

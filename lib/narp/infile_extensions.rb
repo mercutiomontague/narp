@@ -135,6 +135,10 @@ module Narp
   end
 
   class InfileList < FilesList
+    def s3_path_prefix
+      myapp.s3_in_path
+    end
+
     def lhs_tables
       select{|s| s.side == :lhs }
     end

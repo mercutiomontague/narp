@@ -136,8 +136,8 @@ module Narp
   class FilesList < PositionalList
     def s3_mappings
       inject( {} ) { |memo, item| 
-        # puts "--->value is #{item.name.value}"
-        memo[ item.name.value ] = item.name.to_s
+        target = name.to_s =~ /\.gz$|\.zip$/ ? name.to_s : name.to_s << ".zip"
+        memo[ item.name.to_s ] = ::File.join(s3_path_prefix, target)
         memo
       }
     end 
