@@ -30,6 +30,10 @@ def parse_options
       options.output_mapping = true
     end
 
+    opts.on('--tasks', 'Return a json hash of the shell and hive steps to implement the narp program') do
+      options.tasks = true
+    end
+
   end
   opt_parser.parse!(ARGV)
   options
@@ -47,10 +51,10 @@ myapp.parse(program)
 result =  if opts.step_names_only
             myapp.processing_steps.keys
           elsif opts.input_mapping
-            myapps.infiles.s3_mappings
+            myapp.infiles.s3_mappings
           elsif opts.output_mapping
-            myapps.outfiles.s3_mappings
-          else
+            myapp.outfiles.s3_mappings
+          elsif opts.tasks
             myapp.processing_steps
           end
 

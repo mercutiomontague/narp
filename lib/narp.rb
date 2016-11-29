@@ -54,7 +54,8 @@ module Narp
                       pre_path: "~/pre",
                       post_stage_path: "~/post_stage",
                       post_path: "~/post",
-                      log_path: "~/log" 
+                      log_path: "~/log",
+                      tmp_path: "/tmp"
                     }
 
 
