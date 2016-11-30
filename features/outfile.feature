@@ -15,13 +15,13 @@ Feature: Parse the definition for an output file
     Given an input /outfile 'my text file.txt'
     When parsed by OutfileG
     Then I have a FileIdentifier
-    And the filename is my text file.txt
+    And the filename is 'my text file.txt'
 
   Scenario: Providing a filename, a sequential organization and compressed
     Given an input /outfile 'My text_file.txt' Sequential compressed
     When parsed by OutfileG
     Then I have an organization
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the organization is sequential
     And the compressed is normal 
 
@@ -29,7 +29,7 @@ Feature: Parse the definition for an output file
     Given an input /outfile 'My text_file.txt' Sequential compressed highcompression
     When parsed by OutfileG
     Then I have an organization
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the organization is sequential
     And the compressed is high 
 
@@ -37,20 +37,20 @@ Feature: Parse the definition for an output file
     Given an input /outfile 'My text_file.txt' Sequential uncompressed
     When parsed by OutfileG
     Then I have an organization
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the organization is sequential
     And the compressed is none 
 
   Scenario: Providing a filename, and a record length
     Given an input /outfile 'My text_file.txt' 249
     When parsed by OutfileG
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the record length is 0, 249 
 
   Scenario: Providing a filename, and a max and min record length
     Given an input /outfile 'My text_file.txt' 249 25
     When parsed by OutfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the record length is 25, 249
 
   @current
@@ -60,7 +60,7 @@ Feature: Parse the definition for an output file
     And the app parses /infile <infile1>
     And the app parses /infile <infile2>
     When parsed by OutfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the field seperator is <sep_value> 
 
     Examples:
@@ -80,25 +80,25 @@ Feature: Parse the definition for an output file
   Scenario: Providing a filename, and an overwrite disposition 
     Given an input /outfile 'My text_file.txt' overwrite
     When parsed by OutfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the disposition is overwrite
 
   Scenario: Providing a filename, and an append disposition 
     Given an input /outfile 'My text_file.txt' APPEND 
     When parsed by OutfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the disposition is append 
 
   Scenario: Providing a filename, and record numbering 
     Given an input /outfile 'My text_file.txt' recordNumber start 39 
     When parsed by OutfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the record number starts at 39
 
   Scenario: Providing a filename, and record numbering 
     Given an input /outfile 'My text_file.txt' recordNumber 96 
     When parsed by OutfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the record number starts at 96 
 
 	Scenario: Provding all of the options
@@ -106,7 +106,7 @@ Feature: Parse the definition for an output file
     When parsed by OutfileG
     Then I have a Outfile at the root
     And I have an organization
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the organization is sequential
     And the compressed is normal 
     And the record length is 49, 325

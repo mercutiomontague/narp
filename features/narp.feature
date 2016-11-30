@@ -56,13 +56,22 @@ Feature: Parse the definition of a an ETL program using the Narp language
      And the hql should match app_spec_0
      And the postprocess should match app_spec_0
 
+
   Scenario: Parse a definition where all options/commands are on one line
 		Given an existing app that is reinitialized 
-    And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8 /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 /fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 NUMBER_OF_COLUMNS 8 /include cond2
+    And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8 /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 /fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 /include cond2
     Then the ddl should match app_spec_0 
      And the preprocess should match app_spec_0
      And the hql should match app_spec_0
      And the postprocess should match app_spec_0
+
+  @current
+  Scenario: Parse a definition where all options/commands are on one line
+		Given an existing app that is reinitialized 
+		And the app parses /DOMAIN Zions_1 /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt_crlf.gz STREAM crlf "\t" NUMBER_OF_COLUMNS 4 /copy /collatingsequence DEFAULT ASCII /fields cus 3:1 - 3:7 /condition header  (cus = "0000019") /condition billing (cus != "0000019") /condition remaining (cus = "       ") /outfile /etl/dev/source/text_253/ref/data_head_2016-11-03.txt overwrite 3 stream cr /include header /outfile /etl/dev/source/text_253/ref/data_bill_2016-11-03.txt overwrite stream cr /include billing /outfile /etl/dev/source/text_253/ref/data_remain_2016-11-03.txt overwrite stream cr recordnumber 3 /include remaining 
+
+		Then show the app processing_steps 
+
 
   Scenario: Defining a 'splitter' app
    	Given an existing app that is reinitialized 
@@ -167,7 +176,6 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the hql should match app_spec_4
     And the postprocess should match app_spec_4
   
-  @current
   Scenario: Parse a definition to obtain the processing commands 
   	Given an existing app that is reinitialized 
     # And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt STREAM cr "\t" NUMBER_OF_COLUMNS 5 /copy

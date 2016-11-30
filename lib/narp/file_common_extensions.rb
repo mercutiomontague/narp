@@ -94,12 +94,28 @@ module Narp
     attribute Organization, RecordLength, Compressed, [FieldSeperator, :_field_seperator]
     attribute StreamRecordFormat
 
+    def compressed_name 
+      name.value =~ /\.zip$|\.gz$/ ? name.value : "#{name.value}.zip"
+    end
+
+    def uncompressed_name
+      name.value.sub(/\.zip$|\.gz$/, '') 
+    end
+
+    def compressed_basename 
+      ::File.basename(compressed_name)
+    end
+
+    def uncompressed_basename
+      ::File.basename(uncompressed_name)
+    end
+
 		def self.default_field_seperator
 			OpenStruct.new(:value=>"\t", :escaped_value => '\t')
 		end
 
     def hdfs_path
-      ::File.join('hdfs:/', myapp.hdfs_in_path, name.to_s)
+      ::File.join('hdfs:/', myapp.hdfs_in_path, uncompressed_name)
     end
 
     def hive_name

@@ -26,7 +26,7 @@ module Narp
   	end
 
     rule number_of_columns
-      ('NUMBER_OF_COLUMNS'i integer <NumberOfColumns>)
+      ('NUMBER_OF_COLUMNS'i integer) 1..1  <NumberOfColumns>
     end
 
   end

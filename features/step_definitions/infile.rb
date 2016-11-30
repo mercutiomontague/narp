@@ -46,9 +46,7 @@ When(/^the record length is (\d+), (\d+)$/) do |min, max|
 end
 
 When(/^the field seperator is (.+)$/) do |arg1|
-	val = ''	
-	eval( 'val = "' << arg1 << '"' )
-	expect( @cur.field_seperator.value ).to eq( val )
+	expect( @cur.field_seperator.escaped_value ).to eq( arg1 )
 end
 
 Then(/^skip to record (\d+)$/) do |val|

@@ -22,7 +22,6 @@ module Narp
 
       def preprocess
         # Unzip, Extract the necessary lines (:%s/skipto, stopafter) and finally put the files where HIVE can find them.
-        "set +e; mkdir -p #{log_path}; mkdir -p #{tmp_path}; set -e\n" <<
         infiles.collect{|i| [bash_script_header, i.init_pre, i.move_s32pre_stage, i.pre_process, i.move_pre2hdfs, "\n"].join("\n") }.join("\n")
       end
 

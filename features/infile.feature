@@ -15,10 +15,10 @@ Feature: Parse the definition for an input file
     Given an input /infile 'my text file.txt'
     When parsed by InfileG
     Then I have a FileIdentifier
-    And the filename is my text file.txt
+    And the filename is 'my text file.txt'
     Given an input /infile 'short/path/to/My text file.txt'
     When parsed by InfileG
-    And the filename is short/path/to/My text file.txt
+    And the filename is 'short/path/to/My text file.txt'
 		Given an existing app that is reinitialized with zions domain
     And an input /infile 'short/path/to/Your text file.txt'
     When parsed by InfileG
@@ -27,7 +27,7 @@ Feature: Parse the definition for an input file
     Given an input /infile 'path/to/inputfile/My text_file.txt' <organization> <compressed> 
     When parsed by InfileG
     Then I have an organization
-    And the filename is path/to/inputfile/My text_file.txt
+    And the filename is 'path/to/inputfile/My text_file.txt'
     And the organization is <organization>
     And the compressed is <compression>
 
@@ -41,7 +41,7 @@ Feature: Parse the definition for an input file
   Scenario Outline: Providing a filename, and a record length
     Given an input /infile 'My text_file.txt' <record_length> 
     When parsed by InfileG
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the record length is <min_max>
 
     Examples:
@@ -53,13 +53,13 @@ Feature: Parse the definition for an input file
   Scenario Outline: Providing a filename, and a field seperator
     Given an input /infile 'My text_file.txt' <seperator>
     When parsed by InfileG
-    Then the filename is My text_file.txt
+    Then the filename is 'My text_file.txt'
     And the field seperator is <sep_value> 
 
     Examples:
-      | seperator | sep_value |
-      | FIELDSEPARATOR "\t"   | \t        |
-      |                 ","   | ,         |
+      | seperator             | sep_value | 
+      | FIELDSEPARATOR "\t"   | \t        | 
+      |                 ","   | ,         | 
       | FIELDSEPARATOR x"73"  | s         |
       |  							       	| \t        |
 
@@ -78,7 +78,7 @@ Feature: Parse the definition for an input file
     Given an input /infile 'My text_file.txt' alias moo Sequential
     When parsed by InfileG
     Then I have an organization
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the alias is moo
     And the organization is sequential
 
@@ -87,14 +87,14 @@ Feature: Parse the definition for an input file
     Given an input /infile 'My text_file.txt' fskiprecord 23
     When parsed by InfileG
     Then I have a Infile at the root
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And skip to record 23  
 
   Scenario: Providing a filename, an alias, and a recordlimit for skips
     Given an input /infile 'My text_file.txt' alias moo fskipnumbeR 92
     When parsed by InfileG
     Then I have a Infile at the root
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the alias is moo
     And skip to record 92 
   
@@ -102,7 +102,7 @@ Feature: Parse the definition for an input file
     Given an input /infile 'My text_file.txt' alias moo fskiprecord 15 fstopafter 87 
     When parsed by InfileG
     Then I have a Infile at the root
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the alias is moo
     And skip to record 15 
     And stop after 87 records 
@@ -111,7 +111,7 @@ Feature: Parse the definition for an input file
     Given an input /infile 'My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87
     When parsed by InfileG 
     Then I have a Infile at the root
-    And the filename is My text_file.txt
+    And the filename is 'My text_file.txt'
     And the field seperator is s
     And the alias is moo
     And the record length is 15, 349
@@ -132,7 +132,7 @@ Feature: Parse the definition for an input file
 
   @current
   Scenario: Providing NUMBER_OF_COLUMNS option
-    Given an input /infile /etlsource/text_253_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 9
+    Given an input /infile /etlsource/text_253_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 9 
     When parsed by InfileG
     Then I have a Infile at the root
     And the filename is /etlsource/text_253_2016-09-23.txt

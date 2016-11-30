@@ -101,7 +101,7 @@ module Narp
 
     def value
       # Throw an exception if we encounter an octal, since we don't deal with that yet.
-      raise ArgumentError.new("I havwn't implimented a way to translate octal delimieters yet.") if is_oct?
+      raise ArgumentError.new("I haven't implemented a way to translate octal delimieters yet.") if is_oct?
     
       # Convert all escaped characters
       @@escapes.keys.inject(escaped_value) {|memo, k| memo.gsub(k, @@escapes[k]) } 

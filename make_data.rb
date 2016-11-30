@@ -14,7 +14,7 @@ def remainder_row
 end
 
 maxrows = 10000
-File.open('features/fixtures/data_2016-11-03.txt', 'w') {|fh|
+File.open('features/fixtures/data_2016-11-03.txt_crlf', 'w') {|fh|
   (1..maxrows).each {|i|
       r = case (@rand.rand * 3).to_i
         when 0

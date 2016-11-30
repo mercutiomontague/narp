@@ -210,7 +210,7 @@ module Narp
     def analyze
       infiles.inject({}) {|memo, i| 
         if i.analyze
-          memo[i.name.to_s] = i.analyze 
+          memo[i.name.to_s] = i.analyze
         end
         memo
       }
@@ -222,7 +222,7 @@ module Narp
        'Initialize' => ddl, 
 			 'Process' => hql, 
 			 'Postprocess' => postprocess, 
-       'Cleanup Datbase' => cleanup_db,
+       'Cleanup Database' => cleanup_db,
        'Cleanup Filesystem' => cleanup_fs
 			}
 		end
