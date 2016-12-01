@@ -20,7 +20,7 @@ module Narp
     attribute [Alias, :nick], SkipTo, StopAfter, [NumberOfColumns, :_number_of_columns]
 
     def compression_type
-      name.value =~ /\.gz$/ ? :gz : :zip
+      name.value =~ /\.zip$/ ? :zip : :gz
     end
 
     def number_of_columns
