@@ -56,7 +56,7 @@ module Narp
     end
 
     def record_numbering_sql
-      "ROW_NUMBER() OVER () + #{record_numbering && record_numbering.value} AS row_num" 
+      "ROW_NUMBER() OVER () + #{record_numbering && record_numbering.value} -1 AS row_num" 
     end
 
     def populate_hql

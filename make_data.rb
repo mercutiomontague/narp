@@ -14,7 +14,7 @@ def remainder_row
 end
 
 maxrows = 10000
-File.open('features/fixtures/data_2016-11-03.txt_crlf', 'w') {|fh|
+File.open('features/fixtures/data_2016-11-03.txt_cr', 'w') {|fh|
   (1..maxrows).each {|i|
       r = case (@rand.rand * 3).to_i
         when 0
@@ -25,8 +25,8 @@ File.open('features/fixtures/data_2016-11-03.txt_crlf', 'w') {|fh|
           remainder_row
       end
       # fh.puts r
-      # fh.print "#{r}\r"
-      fh.print "#{r}\r\n"
+      fh.print "#{r}\r"
+      # fh.print "#{r}\r\n"
   }
 }
 
