@@ -46,11 +46,11 @@ module Narp
 		end
 
     def stage
-      ::File.join(myapp.pre_stage_path, name.prefix)
+      ::File.join([myapp.pre_stage_path, name.prefix].compact)
     end
 
     def work
-      ::File.join(myapp.pre_path, name.prefix)
+      ::File.join([myapp.pre_path, name.prefix].compact)
     end
 
     def compute_number_of_columns 

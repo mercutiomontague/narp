@@ -25,7 +25,6 @@ module Narp
   
     def initialize
       init
-      define_methods
     end
   
   	def init(domain = nil)
@@ -65,6 +64,23 @@ module Narp
       }
     }
   
+    [:collations, :conditions, :fields ].each {|n|
+      eval("
+        def #{n}=(other)
+          @#{n} = other
+        end
+        " 
+      )
+    }
+    [:infiles, :outfiles, :includes, :joinkeys, :output_spec ].each {|n|
+      eval("
+          def #{n}=(other)
+            @#{n} << other 
+          end
+        "
+        )
+    }
+
     def parse(input)
   		# Not sure why but I need to add the fake term dummyCommandSonny otherwise the first search term (/collatingsequence) fails to match
       keywords = %w[ /dummyCommandSonny /collatingsequence /condition /copy /fields /include /infile /joinkeys /join /outfile /reformat ]
@@ -109,24 +125,6 @@ module Narp
       end
     end
   
-    def define_methods 
-      [:collations, :conditions, :fields ].each {|n|
-        instance_eval("
-          def #{n}=(other)
-            @#{n} = other
-          end
-        "
-        )
-      }
-      [:infiles, :outfiles, :includes, :joinkeys, :output_spec ].each {|n|
-        instance_eval("
-          def #{n}=(other)
-            @#{n} << other 
-          end
-        "
-        )
-      }
-    end 
   
   	def numeric_fields
   		fields.select{|s| @@numeric_types.detect{|z| s.data_type.value == z}}

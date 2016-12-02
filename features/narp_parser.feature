@@ -6,7 +6,7 @@ Feature: Parse a narp statement
 
   @current
   Scenario: Parsing an infile defintion
-    Given an input /infile 'My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 4 /copy
+    Given an input /infile 'My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 4 
     When parsed by Narp 
     Then I have a Infile at the root
     And the filename is 'My text_file.txt'

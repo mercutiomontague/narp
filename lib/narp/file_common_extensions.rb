@@ -127,7 +127,7 @@ module Narp
     end
 
     def fields_string
-      file_fields.collect{|i| "#{i.name} varchar(65000)"}.join("\n\t, ") 
+      file_fields.collect{|i| "#{i.respond_to?(:name) ? i.name : i.to_s} varchar(65000)"}.join("\n\t, ") 
     end
 
     def drop_ddl

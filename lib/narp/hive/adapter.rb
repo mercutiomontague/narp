@@ -29,6 +29,7 @@ module Narp
 
       def hql
         use_db << "\n\n" <<
+        outfiles.collect{|o| o.truncate_sql}.join("\n") << "\n" <<
         "FROM (\n#{Source.new.to_s.myindent}\n)src\n" << 
         outfiles.collect{|o| o.populate_hql }.join("\n\n") << "\n;"
       end

@@ -40,7 +40,7 @@ module Narp
     end
 
     def stage
-      ::File.join(myapp.post_stage_path, name.prefix)
+      ::File.join([myapp.post_stage_path, name.prefix].compact)
     end
 
     def stage_dest
@@ -59,12 +59,17 @@ module Narp
       "ROW_NUMBER() OVER () + #{record_numbering && record_numbering.value} -1 AS row_num" 
     end
 
+    def truncate_sql
+      "TRUNCATE TABLE #{hive_name};"
+    end
+
     def populate_hql
-      cols = file_fields.collect{|r| 
-        if r.name == 'row_num' 
+      cols = file_fields.collect{|r|
+        field = r.respond_to?(:name) ? r.name : r
+        if field == 'row_num' 
           record_numbering_sql 
         else 
-          r.name =~ /^rhs_/ ? r.name : "lhs_#{r.name}"
+          field =~ /^rhs_/ ? field : "lhs_#{field}"
         end
       }.join("\n\t, ")
 

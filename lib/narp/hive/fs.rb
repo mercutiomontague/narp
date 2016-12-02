@@ -17,7 +17,7 @@ module Narp
       end
 
       def bash_script_header
-        ["#!/bin/bash\n", "set -o verbose", exit_on_error].join("\n")
+        ["#!/bin/bash\n", exit_on_error].join("\n")
       end
 
       def preprocess
