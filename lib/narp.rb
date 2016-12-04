@@ -126,6 +126,10 @@ module Narp
     end
   
   
+  	def datetime_fields
+  		fields.select{|s| s.data_type.value == 'datetime'}
+  	end
+  
   	def numeric_fields
   		fields.select{|s| @@numeric_types.detect{|z| s.data_type.value == z}}
   	end

@@ -89,6 +89,10 @@ module Narp
       } <FieldName>
     end
 
+    rule datetime_field_name
+      identifier &{|o| myapp.datetime_fields.detect{|f| f.name == o.first.value } } <NumericFieldName>
+    end
+
     rule numeric_field_name
       identifier &{|o| myapp.numeric_fields.detect{|f| f.name == o.first.value } } <NumericFieldName>
     end

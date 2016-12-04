@@ -95,7 +95,7 @@ module Narp
     attribute StreamRecordFormat
 
     def compressed_name 
-      name.value =~ /\.zip$|\.gz$/ ? name.value : "#{name.value}.zip"
+      name.value =~ /\.zip$|\.gz$/ ? name.value : "#{name.value}.gz"
     end
 
     def uncompressed_name

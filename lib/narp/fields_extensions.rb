@@ -19,18 +19,20 @@ module Narp
   end
 
   class DateTimeSeperator < Treetop::Runtime::SyntaxNode
+    attribute [DoubleQuotedString, :dstring]
+
+    # Don't strip spaces since spaces are a legal seperator
+    def value
+      dstring ? dstring.value : text_value
+    end
+
   end
 
   class DateTimeComponent < Treetop::Runtime::SyntaxNode
     attribute [DateTimeSeperator, :seperator]
 
     def value
-      offset = (seperator && -1*seperator.text_value.length - 1) ||  -1
-      text_value.slice(0 .. offset).downcase
-    end
-
-    def is_a_type?(part)
-      part == date_type 
+      seperator ? text_value.split(seperator.text_value).first.strip : text_value.strip
     end
 
     def type
@@ -52,7 +54,7 @@ module Narp
     end
 
     def date_regex 
-      case value
+      case value.strip
         when 'year'
           '(\d{4})' 
         when 'yy'
@@ -75,12 +77,15 @@ module Narp
           '(am|pm)'
         when 'a.m.'
           '(a.m.|p.m.)'
+        else
+          raise ScriptError.new("I don't know how to handle #{value}")
+
       end
     end
 
     # The actual seperator doesn't matter - just the number of characters
     def regex_pattern
-      seperator ? date_regex << ".{#{seperator.text_value.length}}" : date_regex
+      seperator ? date_regex << ".{#{seperator.value.length}}" : date_regex
     end
   end
 
@@ -104,8 +109,10 @@ module Narp
     attr :regex, :format_string
 
     def value
-      ['character', 'bit'].detect{|d| text_value =~ /#{d}/i } || 
-      (myfind(DateTime) && 'datetime') || numeric_format && ['integer', 'float', 'dfloat'].detect{|d| numeric_format.value =~ /#{d}/i} || raise( ArgumentError.new("Unknown format") )
+      ['character', 'bit'].detect{|d| text_value.downcase =~ /#{d}/ } || 
+      (myfind(DateTime) && 'datetime') || 
+        numeric_format && ['integer', 'float', 'dfloat'].detect{|d| numeric_format.value.downcase =~ /#{d}/} || 
+          raise( ArgumentError.new("Unknown format") )
     end
 
     def to_hql
@@ -116,15 +123,14 @@ module Narp
 
       #Generate the format_string
       dt = [:year, :month, :day].collect{|part| _index(part) ? "\\#{_index(part) + 1}" : '01'}.join('-')
-      time_pcs = [:hour, :min, :sec].collect{|part| _index(part) ? "\\#{_index(part) + 1}" : '00'}
+      time_pcs = [:hour, :minute, :second].collect{|part| _index(part) ? "\\#{_index(part) + 1}" : '00'}
       mi_idx = _index(:meridiem_indicator) 
       if mi_idx
-        mi_ref = 
         hr = time_pcs.shift << " + CASE WHEN LOWER(\\#{mi_idx}) IN ('a.m.', 'am') THEN 0 ELSE 12 END"
         time_pcs.unshift(hr)
       end
      
-      @format_string = OpenStruct.new(:value => "#{dt} #{time_pcs.join(':')}")
+      @format_string = MyOpenStruct.new(:value => "#{dt} #{time_pcs.join(':')}")
       # Now call RegexHql.to_hql
       "CAST(#{super} AS TIMESTAMP)" 
     end

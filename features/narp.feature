@@ -32,7 +32,6 @@ Feature: Parse the definition of a an ETL program using the Narp language
       | f2,f8,f7          | []                  | i9,i2            | i3,i5               | f2:1, f8:2, f7:3             | i9:4, i2:5, i3:6, i5:7      |
 
 
-  @current
   Scenario: Providing a complete application definition
 		Given an existing app that is reinitialized 
     And the app parses /domain zions_1
@@ -209,4 +208,24 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And show the app infile s3 mappings
     And show the app outfile s3 mappings
 		
-
+  @current
+  Scenario: Providing a complete application definition
+		Given an existing app that is reinitialized 
+    And the app parses /domain zions_1
+    And the app parses /infile /short/path/data_1 alias moo '\t'  Sequential compressed highcompression stream crlf fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 9 /copy
+    And the app parses /fields date1 1:1 datetime mm0/yy-dd0 
+    And the app parses /fields dt2 2:1 datetime year/mn/dd hh0:mi0:se0
+    And the app parses /fields dt3 3:1 datetime mon ddth", "year hh0mi0:se0
+    And the app parses /fields col4 4:3 - 5:2 
+    And the app parses /fields col9 9:1 integer
+    And the app parses /derivedfield num col9 * 2 
+    And the app parses /condition cond2 col4 mt /tarzan/i
+    And the app parses /condition cond11 dt3 > '2008-01-01'
+    And the app parses /outfile out_file_1.txt 
+    And the app parses /include cond11
+    And the app parses /outfile path/to/file/out_file2.txt 
+    And the app parses /include cond2
+     Then show the app preprocess 
+     Then show the app ddl 
+     And show the app hql
+     Then show the app postprocess 

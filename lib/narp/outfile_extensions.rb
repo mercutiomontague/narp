@@ -59,10 +59,6 @@ module Narp
       "ROW_NUMBER() OVER () + #{record_numbering && record_numbering.value} -1 AS row_num" 
     end
 
-    def truncate_sql
-      "TRUNCATE TABLE #{hive_name};"
-    end
-
     def populate_hql
       cols = file_fields.collect{|r|
         field = r.respond_to?(:name) ? r.name : r

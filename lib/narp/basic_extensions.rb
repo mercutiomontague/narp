@@ -1,4 +1,5 @@
 require 'narp/parse_issue.rb'
+require 'ostruct'
 
 module Narp 
   class MyIdentifier < Treetop::Runtime::SyntaxNode
@@ -196,17 +197,44 @@ module Narp
       pat = escape_for_java(pat)
       #Scan the format_string to determine the match references
       refs = format_string.value.scan(/\\(\d)/).flatten
-      pieces = refs.inject({}) {|memo, pos|
+      dict = refs.inject({}) {|memo, pos|
         memo[ pos ] = "REGEXP_EXTRACT(#{src}, '#{pat}', #{pos})"
         memo
       }
-      
-      # put the pieces together and remember to remove the superfluous commas
-      mess = format_string.value.gsub(/\\(\d)/) {|match| "', " << pieces[ $1 ] << ", '"}
-      mess = mess.gsub(/^', |, ''$/, '')
-      'CONCAT(' << mess  << ')'.myindent(indent)
+
+      result = format_string.extend( RegexFormatStringAbilities ).interpolate( dict )
+      'CONCAT(' << result.join(', ') << ')'
     end
+
   end
 
+  module RegexFormatStringAbilities
+    def interpolate(dict)
+      pieces.collect{|p|
+        p =~ /^\\(\d+)/ ? dict[$1] : p
+      } 
+    end
+
+    # Split the format string into an array of pieces. Each
+    # piece is either a quoted string or regex group reference
+    def pieces
+      parts = []
+      start = self.to_s 
+      begin
+        before, match, after = start.partition(/\\\d+/)
+        parts << "'#{before}'" unless before.empty?
+        parts << match unless match.empty?
+        start = after
+      end until start.empty?
+      parts.flatten
+    end
+    
+  end
+
+  class MyOpenStruct < OpenStruct
+    def to_s
+      self.value ? self.value : super
+    end
+  end
 end
 

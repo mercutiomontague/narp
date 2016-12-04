@@ -54,7 +54,8 @@ File.open('features/fixtures/data_1', 'w') {|fh|
       @names[ (@rand.rand*@names.size).to_i ],
       @adverbs[ (@rand.rand*@adverbs.size).to_i ],
       @verbs[ (@rand.rand*@verbs.size).to_i ],
-      @adjectives[ (@rand.rand*@adjectives.size).to_i ]
+      @adjectives[ (@rand.rand*@adjectives.size).to_i ],
+      (100*@rand.rand).to_i,
     ].join("\t")
   }
 }

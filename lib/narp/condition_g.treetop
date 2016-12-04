@@ -23,7 +23,7 @@ module Narp
     end
 
     rule numeric_expression
-      (numeric_value numeric_operator numeric_value <NumericExpression>) 
+      (numeric_value numeric_operator (numeric_value / character_terminal) <NumericExpression>) 
     end
 
 		rule numeric_value
@@ -37,7 +37,7 @@ module Narp
     end
 
     rule numeric_terminal
-      (number 1..1  <NumericTerminal>) / (('+' / '-')? numeric_field_name <NumericTerminal>) / 
+      (number 1..1  <NumericTerminal>) / (('+' / '-')? numeric_field_name <NumericTerminal>) / (datetime_field_name 1..1 <NumericTerminal>) /
       (derived_field_name 1..1  <NumericTerminal>) 
     end
 
