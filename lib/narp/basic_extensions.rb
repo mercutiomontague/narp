@@ -165,10 +165,6 @@ module Narp
       $1
     end
 
-    # def hql_value
-    #   value && value.gsub('\d', '\\d').gsub('\D', '\\D').gsub('\s', '\\s').gsub('\S', '\\S').gsub('\w', '\\w').gsub('\W', '\\W')
-    # end
-
     def options
       text_value.strip =~ /\/(.+)\/(.*)/
       $2
@@ -187,7 +183,7 @@ module Narp
   module RegexHql
     # Need to escape the predefined character classes since Hive uses the java Regexp to implement its regexp_extract udf
     def escape_for_java(str)
-      str.gsub("\d", "\\d").gsub("\D", "\\D").gsub("\s", "\\s").gsub("\S", "\\S").gsub("\w", "\\w").gsub("\W", "\\W")
+      str.gsub('\d', '\\\\d').gsub('\D', '\\\\D').gsub('\s', '\\\\s').gsub('\S', '\\\\S').gsub('\w', '\\\\w').gsub('\W', '\\\\W')
     end
 
     def to_hql(indent=0)
@@ -195,46 +191,16 @@ module Narp
       src = regex.case_insensitive? ? 'LOWER(' << myapp.placeholder << ')' : myapp.placeholder
       pat = regex.case_insensitive? ? regex.value.downcase : regex.value
       pat = escape_for_java(pat)
-      #Scan the format_string to determine the match references
-      refs = format_string.value.scan(/\\(\d)/).flatten
-      dict = refs.inject({}) {|memo, pos|
-        memo[ pos ] = "REGEXP_EXTRACT(#{src}, '#{pat}', #{pos})"
-        memo
-      }
 
-      result = format_string.extend( RegexFormatStringAbilities ).interpolate( dict )
+      result = format_string.pieces.collect{|f|
+        # f =~ /\\(\d+)/  ?  "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})" : f
+        f =~ /\\(\d+)/ ? f.sub("\\#{$1}", "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})") : f
+      }
+     
+      # result = format_string.extend( RegexFormatStringAbilities ).interpolate( dict )
       'CONCAT(' << result.join(', ') << ')'
     end
-
   end
 
-  module RegexFormatStringAbilities
-    def interpolate(dict)
-      pieces.collect{|p|
-        p =~ /^\\(\d+)/ ? dict[$1] : p
-      } 
-    end
-
-    # Split the format string into an array of pieces. Each
-    # piece is either a quoted string or regex group reference
-    def pieces
-      parts = []
-      start = self.to_s 
-      begin
-        before, match, after = start.partition(/\\\d+/)
-        parts << "'#{before}'" unless before.empty?
-        parts << match unless match.empty?
-        start = after
-      end until start.empty?
-      parts.flatten
-    end
-    
-  end
-
-  class MyOpenStruct < OpenStruct
-    def to_s
-      self.value ? self.value : super
-    end
-  end
 end
 

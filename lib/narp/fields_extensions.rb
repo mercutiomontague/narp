@@ -102,6 +102,77 @@ module Narp
     end
   end
 
+  class RegexFormatString
+    attr :dt_parts
+
+    def initialize(dts)
+      @dt_parts = dts
+    end
+
+    def pieces 
+      [dt.interleave("'-'"), time_pcs.interleave("':'")].flatten 
+    end
+
+    def _reference_position(type)
+      dt_parts.index{|d| d.type == type} ? dt_parts.index{|d| d.type == type} + 1 : nil
+    end
+
+    def _group_reference(type)
+      _reference_position(type) ? "\\#{_reference_position(type)}" : nil
+    end
+
+    def time_pcs
+      pcs = [:hour, :minute, :second].collect{|part| _group_reference(part) ? _group_reference(part) : '00'}
+      pcs[-1] = pcs[-1] << " + CASE WHEN LOWER(#{_group_reference(:meridiem_indicator)}) IN ('a.m.', 'am') THEN 0 ELSE 12 END" if _group_reference(:meridiem_indicator) 
+      pcs
+    end
+
+    def dt
+      pcs = [:year, :month, :day].collect{|part| _group_reference(part) ? _group_reference(part) : '01'} 
+      pcs[1] = wrap_with_month_mapper( pcs[1] )
+      pcs
+    end
+
+    # Map month and month acronyms to their 2 digit code. This is necessary since Hive
+    # can not natively handle 2016-january-21 but can work with 2016-01-21
+    def wrap_with_month_mapper( elem )
+      return elem unless m = dt_parts.detect{|p| ['mon', 'mn'].detect{|d| d == p.value }}
+
+      if m == 'mon'
+        "CASE #{elem}\n" <<
+        "WHEN 'january' THEN 1\n" <<
+        "WHEN 'february' THEN 2\n" <<
+        "WHEN 'march' THEN 3\n" <<
+        "WHEN 'april' THEN 4\n" <<
+        "WHEN 'may' THEN 5\n" <<
+        "WHEN 'june' THEN 6\n" <<
+        "WHEN 'july' THEN 7\n" <<
+        "WHEN 'august' THEN 8\n" <<
+        "WHEN 'september THEN 9\n" <<
+        "WHEN 'october THEN 10\n" <<
+        "WHEN 'november THEN 11\n" <<
+        "WHEN 'december THEN 12\n" <<
+        "END" 
+      else
+        "CASE #{elem}\n" <<
+        "WHEN 'jan' THEN 1\n" <<
+        "WHEN 'feb' THEN 2\n" <<
+        "WHEN 'mar' THEN 3\n" <<
+        "WHEN 'apr' THEN 4\n" <<
+        "WHEN 'may' THEN 5\n" <<
+        "WHEN 'jun' THEN 6\n" <<
+        "WHEN 'jul' THEN 7\n" <<
+        "WHEN 'aug' THEN 8\n" <<
+        "WHEN 'sep THEN 9\n" <<
+        "WHEN 'oct THEN 10\n" <<
+        "WHEN 'nov THEN 11\n" <<
+        "WHEN 'dec THEN 12\n" <<
+        "END" 
+      end
+    end
+
+  end
+
   class FieldFormat < Treetop::Runtime::SyntaxNode
     include RegexHql
     attributes [DateTimeComponent, :dt_parts]
@@ -121,22 +192,12 @@ module Narp
       #Generate a regex pattern from the dt_parts
       @regex = OpenStruct.new(:value => dt_parts.collect{|c| c.regex_pattern}.join, :case_insensitive? => true)
 
+      @format_string = RegexFormatString.new(dt_parts)
+      
+
       #Generate the format_string
-      dt = [:year, :month, :day].collect{|part| _index(part) ? "\\#{_index(part) + 1}" : '01'}.join('-')
-      time_pcs = [:hour, :minute, :second].collect{|part| _index(part) ? "\\#{_index(part) + 1}" : '00'}
-      mi_idx = _index(:meridiem_indicator) 
-      if mi_idx
-        hr = time_pcs.shift << " + CASE WHEN LOWER(\\#{mi_idx}) IN ('a.m.', 'am') THEN 0 ELSE 12 END"
-        time_pcs.unshift(hr)
-      end
-     
-      @format_string = MyOpenStruct.new(:value => "#{dt} #{time_pcs.join(':')}")
       # Now call RegexHql.to_hql
       "CAST(#{super} AS TIMESTAMP)" 
-    end
-
-    def _index(type)
-      dt_parts.index{|d| d.type == type}
     end
 
   end

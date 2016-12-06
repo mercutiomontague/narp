@@ -1,3 +1,9 @@
+class Array
+  def interleave(item)
+    collect{|i| [i, item]}.flatten[0..-2]
+  end
+end
+
 module AppPosition
   def position=(num)
     @position=num
@@ -129,6 +135,7 @@ end
 
 # Define some finders to make it easy to bring child elements
 class Treetop::Runtime::SyntaxNode
+
 	def value
 		text_value.strip.downcase
 	end
@@ -140,10 +147,6 @@ class Treetop::Runtime::SyntaxNode
   def to_hql(indent=0)
     (elements && elements.size > 0 && elements.collect{|f| f.to_hql(indent) }.reject{|r| r == ''}.join(' ')) || value
   end
-
-  # def to_column_expression(indent=0)
-  #   to_hql(indent)
-  # end
 
   def myfind( class_obj )
     return self if self.class == class_obj 

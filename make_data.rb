@@ -16,7 +16,7 @@ require 'date'
                                                                                   
 
 def date1(d)
-  sprintf("%02d/%02d-%02d %d:%02d:%02d", d.month, (d.year.to_s[3..4]).to_i, d.day, d.hour, d.minute, d.second)
+  sprintf("%02d/%04d-%02d %d:%02d:%02d", d.month, d.year.to_i, d.day, d.hour, d.minute, d.second)
 end
 
 
@@ -47,6 +47,7 @@ File.open('features/fixtures/data_1', 'w') {|fh|
     idx = (@rand.rand * @dates.size ).to_i
     d = @dates[ idx ]
     fh.puts [
+      i, 
       date1(d),
       date2(d),
       date3(d),

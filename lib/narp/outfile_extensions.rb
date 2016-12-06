@@ -65,7 +65,7 @@ module Narp
         if field == 'row_num' 
           record_numbering_sql 
         else 
-          field =~ /^rhs_/ ? field : "lhs_#{field}"
+          field =~ /^rhs_|^lhs_/ ? field : "lhs_#{field}"
         end
       }.join("\n\t, ")
 
