@@ -110,7 +110,7 @@ module Narp
     end
 
     def pieces 
-      [dt.interleave("'-'"), time_pcs.interleave("':'")].flatten 
+      [dt.interleave("'-'"), "' '", time_pcs.interleave("':'")].flatten 
     end
 
     def _reference_position(type)
@@ -122,13 +122,13 @@ module Narp
     end
 
     def time_pcs
-      pcs = [:hour, :minute, :second].collect{|part| _group_reference(part) ? _group_reference(part) : '00'}
+      pcs = [:hour, :minute, :second].collect{|part| _group_reference(part) ? _group_reference(part) : "'00'"}
       pcs[-1] = pcs[-1] << " + CASE WHEN LOWER(#{_group_reference(:meridiem_indicator)}) IN ('a.m.', 'am') THEN 0 ELSE 12 END" if _group_reference(:meridiem_indicator) 
       pcs
     end
 
     def dt
-      pcs = [:year, :month, :day].collect{|part| _group_reference(part) ? _group_reference(part) : '01'} 
+      pcs = [:year, :month, :day].collect{|part| _group_reference(part) ? _group_reference(part) : "'01'"} 
       pcs[1] = wrap_with_month_mapper( pcs[1] )
       pcs
     end
@@ -138,7 +138,7 @@ module Narp
     def wrap_with_month_mapper( elem )
       return elem unless m = dt_parts.detect{|p| ['mon', 'mn'].detect{|d| d == p.value }}
 
-      if m == 'mon'
+      if m.value == 'mon'
         "CASE #{elem}\n" <<
         "WHEN 'january' THEN 1\n" <<
         "WHEN 'february' THEN 2\n" <<
@@ -148,10 +148,10 @@ module Narp
         "WHEN 'june' THEN 6\n" <<
         "WHEN 'july' THEN 7\n" <<
         "WHEN 'august' THEN 8\n" <<
-        "WHEN 'september THEN 9\n" <<
-        "WHEN 'october THEN 10\n" <<
-        "WHEN 'november THEN 11\n" <<
-        "WHEN 'december THEN 12\n" <<
+        "WHEN 'september' THEN 9\n" <<
+        "WHEN 'october' THEN 10\n" <<
+        "WHEN 'november' THEN 11\n" <<
+        "WHEN 'december' THEN 12\n" <<
         "END" 
       else
         "CASE #{elem}\n" <<
@@ -163,10 +163,10 @@ module Narp
         "WHEN 'jun' THEN 6\n" <<
         "WHEN 'jul' THEN 7\n" <<
         "WHEN 'aug' THEN 8\n" <<
-        "WHEN 'sep THEN 9\n" <<
-        "WHEN 'oct THEN 10\n" <<
-        "WHEN 'nov THEN 11\n" <<
-        "WHEN 'dec THEN 12\n" <<
+        "WHEN 'sep' THEN 9\n" <<
+        "WHEN 'oct' THEN 10\n" <<
+        "WHEN 'nov' THEN 11\n" <<
+        "WHEN 'dec' THEN 12\n" <<
         "END" 
       end
     end

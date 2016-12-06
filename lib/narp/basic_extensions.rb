@@ -183,7 +183,8 @@ module Narp
   module RegexHql
     # Need to escape the predefined character classes since Hive uses the java Regexp to implement its regexp_extract udf
     def escape_for_java(str)
-      str.gsub('\d', '\\\\d').gsub('\D', '\\\\D').gsub('\s', '\\\\s').gsub('\S', '\\\\S').gsub('\w', '\\\\w').gsub('\W', '\\\\W')
+      # We need to do this excessive amount of escaping to get past the subsequent interpolation
+      str.gsub('\d', '\\\\\\\\\d').gsub('\D', '\\\\\\\\\D').gsub('\s', '\\\\\\\\\s').gsub('\S', '\\\\\\\\\S').gsub('\w', '\\\\\\\\\w').gsub('\W', '\\\\\\\\\W')
     end
 
     def to_hql(indent=0)
@@ -193,7 +194,6 @@ module Narp
       pat = escape_for_java(pat)
 
       result = format_string.pieces.collect{|f|
-        # f =~ /\\(\d+)/  ?  "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})" : f
         f =~ /\\(\d+)/ ? f.sub("\\#{$1}", "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})") : f
       }
      
