@@ -17,6 +17,10 @@ module Narp
         "DROP DATABASE #{domain};"
       end
 
+      def set_options
+        "set hive.groupby.orderby.position.alias = true;"
+      end
+
   	  def ddl
         ["CREATE DATABASE #{domain};", 
          use_db, 
@@ -28,6 +32,7 @@ module Narp
       end
 
       def hql
+        set_options << "\n\n" <<
         use_db << "\n\n" <<
         "FROM (\n#{Source.new.to_s.myindent}\n)src\n" << 
         outfiles.collect{|o| o.populate_hql }.join("\n\n") << "\n;"

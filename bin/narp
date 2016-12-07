@@ -35,6 +35,7 @@ def parse_options
     end
 
   end
+
   opt_parser.parse!(ARGV)
   options
 end
@@ -44,18 +45,31 @@ def read_program_file(opt)
   File.open(opt.program_file, 'r').readlines.join("\n")
 end
 
-opts = parse_options
-program = read_program_file(opts) || ARGV.join(' ')
-myapp.parse(program)
+def process(opts)
+  myapp.parse( read_program_file(opts) || ARGV.join(' ') )
 
-result =  if opts.step_names_only
-            myapp.processing_steps.keys
-          elsif opts.input_mapping
-            myapp.infiles.s3_mappings
-          elsif opts.output_mapping
-            myapp.outfiles.s3_mappings
-          elsif opts.tasks
-            myapp.processing_steps
-          end
+  h = {} 
+  if opts.step_names_only
+    h[:steps] = myapp.processing_steps.keys
+  elsif opts.input_mapping
+    h[:mappings] = myapp.infiles.s3_mappings
+  elsif opts.output_mapping
+    h[:mappings] = myapp.outfiles.s3_mappings
+  elsif opts.tasks
+    h[:tasks] = myapp.processing_steps
+  end
+  h
+
+  rescue Exception => ex
+    {status: 'failed',
+     message: ex.message, 
+     backtrace: ex.backtrace.flatten.join("\n")
+    }
+end
+
+opts = parse_options
+
+result = process(opts)
+result[:status] = 'success' unless result.has_key?(:status)
 
 puts ::JSON.pretty_generate( result )

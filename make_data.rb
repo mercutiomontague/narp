@@ -21,7 +21,7 @@ end
 
 
 def date2(d)
-  sprintf("%02d/%s/%d %02d:%02d:%02d %s", d.year, @month_short_name[d.month - 1], d.day, d.hour > 12 ? d.hour - 12 : d.hour, d.minute, d.second, d.hour > 12 ? 'p.m' : 'a.m')
+  sprintf("%02d/%s/%d %02d:%02d:%02d %s", d.year, @month_short_name[d.month - 1], d.day, d.hour > 12 ? d.hour - 12 : d.hour, d.minute, d.second, d.hour > 12 ? 'p.m.' : 'a.m.')
 end
 
 def date3(d)

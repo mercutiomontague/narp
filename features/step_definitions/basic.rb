@@ -3,6 +3,7 @@ Given(/^an input (.+)$/) do |input|
   # To work around this, I provide #1, #2 etc.  We therefore need to convert these to simply
   # \1, \2 etc before passing it to the parser to process
   input.gsub!(/#(\d)/) {|match| "\\#{$1}"}
+
 	@input = input
 end
 

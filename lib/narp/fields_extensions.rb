@@ -68,11 +68,11 @@ module Narp
         when 'mon'
           '(january|february|march|april|may|june|july|august|september|october|november|december)'
         when 'mn'
-          '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\.?'
+          '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\\\\.?'
         when 'day'
           '(monday|tuesday|wednesday|thursday|friday|saturday|sunday)'
         when 'dy'
-          '(mon|tu|tue|tues|wed|th|thu|thur|thrus|fri|sat|sun)\.?'
+          '(mon|tu|tue|tues|wed|th|thu|thur|thrus|fri|sat|sun)\\\\.?'
         when 'am'
           '(am|pm)'
         when 'a.m.'
@@ -123,7 +123,7 @@ module Narp
 
     def time_pcs
       pcs = [:hour, :minute, :second].collect{|part| _group_reference(part) ? _group_reference(part) : "'00'"}
-      pcs[-1] = pcs[-1] << " + CASE WHEN LOWER(#{_group_reference(:meridiem_indicator)}) IN ('a.m.', 'am') THEN 0 ELSE 12 END" if _group_reference(:meridiem_indicator) 
+      pcs[0] = "CAST(" << pcs[0] << " AS INT) " << " + CASE WHEN " << _group_reference(:meridiem_indicator) << " IN ('a.m.', 'am') THEN 0 ELSE 12 END" if _group_reference(:meridiem_indicator) 
       pcs
     end
 
