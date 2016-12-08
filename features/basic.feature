@@ -45,8 +45,7 @@ Feature: Parse the definition basic elements of the Narp language
   
     Examples:
       | input   | class             | value    |
-      | 23      | OrdinalLiteral    | 23         |
-      | -23     | IntegerLiteral    | -23         |
+      | 23      | IntegerLiteral    | 23         |
       | 23.33   | FloatLiteral      | 23.33        |
       | 2,333   | EditedNumeric     | 2333        |
       | 8,333.3 | EditedNumeric     | 8333.3        |

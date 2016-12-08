@@ -35,9 +35,17 @@ module Narp
       (space? [0-9]* ('x'i / 'o'i )? double_quoted_string <String>)
     end
   
-		rule paren
-			(space? '(' space? <ParenthesisLiteral>) /	(space? ')' space? <ParenthesisLiteral>)
-		end
+		#rule paren
+		#	(space? '(' space? <ParenthesisLiteral>) /	(space? ')' space? <ParenthesisLiteral>)
+		#end
+
+    rule left_paren
+      space? '(' space? <ParenthesisLiteral>
+    end
+  
+    rule right_paren
+      space? ')' space? <ParenthesisLiteral>
+    end
   
     rule identifier
       # space? [a-zA-Z0-9_]+ space? <MyIdentifier>
@@ -45,7 +53,8 @@ module Narp
     end
     
     rule integer
-      space? ('+' / '-')? [0-9]+ space? <IntegerLiteral>
+      # space? ('+' / '-')? [0-9]+ space? <IntegerLiteral>
+      space? [0-9]+ space? <IntegerLiteral>
     end
 
     rule ordinal
@@ -69,7 +78,8 @@ module Narp
     end
 
     rule number
-      edited_numeric / float / ordinal / integer 
+      # edited_numeric / float / ordinal / integer 
+      edited_numeric / float / integer 
     end
 
     rule regexp

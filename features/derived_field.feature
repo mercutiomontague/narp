@@ -4,14 +4,6 @@ Feature: Parse the derived fields
   As a developer
   I should be able to run this scenario to prove that the defintion is correctly interpretted
 
-  # Scenario: providing an character expression 
-  #   Given an existing app that is reinitialized
-	# 	And the app has numeric fields fn1, fn2, fn3
-	# 	And the app has character fields fc1, fc2
-  #   And the app has conditions cond2, cond5
-  #   And an input /derivedfield calc1 fn1 + 92.5 
-  #   When parsed by DerivedFieldG --verbose
-
   @current
   Scenario Outline: providing a character/numeric expression 
     Given an input /derivedfield <expression>
@@ -25,6 +17,7 @@ Feature: Parse the derived fields
     Examples:
       | expression                                   | column_expression            							| sequence 	| 
       | calc1 fc1                                    | lhs_fc1 AS calc1   														| null			|
+      | calc1 -5 * 20                                | - 5 * 20 AS calc1   														| null			|
       | calc2 fc2 23 compress ascii                  | TRIM(CAST(lhs_fc2 AS VARCHAR(23))) AS calc2   	| ascii 		|
       | calc2 fc2 character 28 compress ascii        | TRIM(CAST(lhs_fc2 AS VARCHAR(28))) AS calc2   	| ascii 		|
       | calc2 fc2 54 character compress ascii        | TRIM(CAST(lhs_fc2 AS VARCHAR(54))) AS calc2   	| ascii 		|
@@ -69,21 +62,20 @@ Feature: Parse the derived fields
 
 
   Scenario Outline: A derived expression referencing another derived_expression
-    Given an input /derivedfield <name> <expression>
+    Given an input /derivedfield <expression>
     And an existing app that is reinitialized
 		And the app has numeric fields fn1, fn2, fn3
 		And the app has character fields fc1, fc2
 		And the app has derived fields fd1, fd2
     And the app has conditions cond2, cond5, cond7
     When parsed by DerivedFieldG 
-   	Then the name is <name> 
     And the column expression is <column_expression>
 
     Examples:
-      | name      | expression                                  | column_expression                                                                 |
-      | calc2     | fd1 + 25.3 + 56 + fd2                       |  (_fd1_) + 25.3 + 56 + (_fd2_) AS calc2    |
-      | calc3     | fn1 + 25.3 + fd2 * 19                       |  lhs_fn1 + 25.3 + (_fd2_) * 19 AS calc3    |
-      | calc4     | if cond2 then fd1 + 25.3 else 56 + fd2      | CASE WHEN _cond2_ THEN (_fd1_) + 25.3 ELSE 56 + (_fd2_) END AS calc4    |
-      | calc5     | if cond2 then fn1 / 25.3 else 56 + fd2      | CASE WHEN _cond2_ THEN lhs_fn1 / 25.3 ELSE 56 + (_fd2_) END AS calc5    |
-      | calc6     | fd1 compress | TRIM((_fd1_)) AS calc6 |
+      | expression                                  | column_expression                                                                 |
+      | calc2 fd1 + 25.3 + 56 + fd2                       |  (_fd1_) + 25.3 + 56 + (_fd2_) AS calc2    |
+      | calc3 fn1 + 25.3 + fd2 * 19                       |  lhs_fn1 + 25.3 + (_fd2_) * 19 AS calc3    |
+      | calc4 if cond2 then fd1 + 25.3 else 56 + fd2      | CASE WHEN _cond2_ THEN (_fd1_) + 25.3 ELSE 56 + (_fd2_) END AS calc4    |
+      | calc5 if cond2 then fn1 / 25.3 else 56 + fd2      | CASE WHEN _cond2_ THEN lhs_fn1 / 25.3 ELSE 56 + (_fd2_) END AS calc5    |
+      | calc6 fd1 compress | TRIM((_fd1_)) AS calc6 |
 

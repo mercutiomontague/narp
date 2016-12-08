@@ -212,23 +212,24 @@ Feature: Parse the definition of a an ETL program using the Narp language
   Scenario: Providing a complete application definition
 		Given an existing app that is reinitialized 
     And the app parses /domain zions_1
-    And the app parses /infile /short/path/data_1 alias moo "\t"  Sequential compressed highcompression stream crlf NUMBER_OF_COLUMNS 10 
+    And the app parses /infile /short/path/data_1 alias moo "\t"  Sequential compressed highcompression stream crlf fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 10 
     And the app parses /fields id 1:1 integer
-    # And the app parses /fields date1 2:1 datetime mm0/year-dd0 
+    And the app parses /fields date1 2:1 datetime mm0/year-dd0 
     And the app parses /fields dt2 3:1 datetime year/mn/dd hh0:mi0:se0 a.m.
-    # And the app parses /fields dt3 4:1 datetime mon ddth", "year hh0mi0:se0 
-    # And the app parses /fields col5 5:3 
-    # And the app parses /fields col6 6:1 
-    # And the app parses /fields col10 10:1 integer
-    # And the app parses /condition cond2 col6 mt /tarzan/i
-    # And the app parses /condition cond11 dt3 > "2000-01-21 01:21:20"
-    # And the app parses /condition cond3 dt2 = "2009-02-28 19:05:00"
-    # And the app parses /outfile out_file_1.txt 
-    # And the app parses /include cond11
-    # And the app parses /outfile path/to/file/out_file2.txt 
-    # And the app parses /include cond2
-    # And the app parses /outfile /to/file/out_file3.txt 
-    # And the app parses /include cond3
+    And the app parses /fields dt3 4:1 datetime mon ddth", "year hh0mi0:se0 
+    And the app parses /fields col5 5:3 
+    And the app parses /fields col6 6:1 
+    And the app parses /fields col10 10:1 integer
+    And the app parses /derivedfield num col10 *2
+    And the app parses /condition cond2 col6 mt /tarzan/i
+    And the app parses /condition cond11 dt3 > "2000-01-21 01:21:20"
+    And the app parses /condition cond3 dt2 = "2009-02-28 19:05:00"
+    And the app parses /outfile out_file_1.txt 
+    And the app parses /include cond11
+    And the app parses /outfile path/to/file/out_file2.txt 
+    And the app parses /include cond2
+    And the app parses /outfile /to/file/out_file3.txt 
+    And the app parses /include cond3
      Then show the app preprocess 
      Then show the app ddl 
      And show the app hql

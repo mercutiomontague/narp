@@ -78,14 +78,14 @@ module Narp
     end
 
     def length 
-      ordinal_literal && ordinal_literal.value
+      integer_literal && integer_literal.value
     end
   end
 
   class NumericType < Treetop::Runtime::SyntaxNode
     include CommonTypeBehavior
     attribute NumericFormat, FormatEdit, PrecisionScale 
-    attribute RegexType, OrdinalLiteral
+    attribute RegexType, IntegerLiteral
 
     def integer_part
       precision_scale && precision_scale.integer_part
@@ -98,7 +98,7 @@ module Narp
 
   class CharacterType < Treetop::Runtime::SyntaxNode
     include CommonTypeBehavior
-    attribute RegexType, OrdinalLiteral
+    attribute RegexType, IntegerLiteral
   
   end
 
@@ -150,8 +150,8 @@ module Narp
   end
 
   class SourceValue < Treetop::Runtime::SyntaxNode
-    # attribute FieldName, DerivedFieldName, NumericValue, ConditionalExpression, String
-    attribute FieldName, NumericValue, ConditionalExpression, String
+    # attribute FieldName, NumericValue, ConditionalExpression, String
+    attribute ConditionalExpression, Expression, NumericTerminal, CharacterTerminal, String
 
     def to_hql(indent=0)
       if myobj.is_a?(ConditionalExpression)
@@ -162,8 +162,8 @@ module Narp
     end
 
     def myobj
-      # [conditional_expression, field_name, derived_field_name, numeric_value, string].compact.first
-      conditional_expression || field_name ||  numeric_value || string
+      # conditional_expression || field_name ||  numeric_value || string
+      conditional_expression || expression || numeric_terminal || character_terminal || string
     end
 
     def fields

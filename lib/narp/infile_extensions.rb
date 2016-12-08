@@ -98,7 +98,7 @@ module Narp
         ops = [skip_to ? "NR >= #{skip_to.value}" : nil,
                 stop_after ? "NR <= #{stop_after.value}" : nil
               ].compact
-        cmd = [awk_preamble, ops.join(' && '), "<< #{stage}/#{uncompressed_basename}"].join(' ')
+        cmd = [awk_preamble, ops.join(' && '), "< #{stage}/#{uncompressed_basename}"].join(' ')
 
         cmd << " | cut -c1-#{record_length && record_length.max}" if record_length
         cmd << " > #{work}/#{uncompressed_basename}\n"

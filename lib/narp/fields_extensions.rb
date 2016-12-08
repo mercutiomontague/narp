@@ -321,7 +321,7 @@ module Narp
 
     def length
       fl = myfind(FormatLength)
-      fl && fl.myfind(OrdinalLiteral) 
+      fl && fl.myfind(IntegerLiteral) 
     end
 
     def data_type

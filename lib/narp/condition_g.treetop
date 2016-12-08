@@ -6,43 +6,28 @@ module Narp
     include BasicG
     
     rule condition
-      ('/condition'i identifier expression (logical_operator expression)* <Condition> ) / 
-      ('/condition'i identifier paren expression (logical_operator space? expression)* paren <Condition> )
+      ('/condition'i identifier expression <Condition> ) 
     end
   
     rule logical_operator
       (space? 'and'i space? <LogicalOperator>) / (space? 'or'i space? <LogicalOperator>)
     end
-    
+
     rule expression 
-      (paren? numeric_expression paren? <Expression>) / 
-      (numeric_expression 1..1 <Expression>) / 
-      (paren? character_expression paren? <Expression>) / 
-      (character_expression 1..1 <Expression>) 
-      #/ (bit_expression 1..1 <Expression>)
+      (left_paren expression right_paren expression* <Expression>) /
+      # ( sub_expression* (match_operator / character_operator / arithmetic_operator / numeric_operator / logical_operator) expression+ <Expression>) /
+      ( sub_expression* (arithmetic_operator / numeric_operator / logical_operator) expression+ <Expression>) /
+      ( sub_expression+  <Expression>) 
     end
 
-    rule numeric_expression
-      (numeric_value numeric_operator (numeric_value / character_terminal) <NumericExpression>) 
+    rule sub_expression
+      character_expression / numeric_terminal
     end
 
-		rule numeric_value
-      (paren numeric_value paren numeric_value? <NumericValue>) / 
-      (arithmetic_operator numeric_value <NumericValue>) /
-      (numeric_value_raw+ numeric_value? <NumericValue>)
-		end
 
-    rule numeric_value_raw
-      arithmetic_operator? numeric_terminal arithmetic_operator? <NumericValueRaw>
-    end
-
-    rule numeric_terminal
-      (number 1..1  <NumericTerminal>) / (('+' / '-')? numeric_field_name <NumericTerminal>) / (datetime_field_name 1..1 <NumericTerminal>) /
+    rule numeric_terminal 
+      (number 1..1  <NumericTerminal>) / (numeric_field_name 1..1 <NumericTerminal>) / (datetime_field_name 1..1 <NumericTerminal>) /
       (derived_field_name 1..1  <NumericTerminal>) 
-    end
-
-    rule arithmetic_expression
-      numeric_terminal (arithmetic_operator numeric_terminal) <ArithmeticExpression>
     end
 
     rule arithmetic_operator
@@ -81,6 +66,7 @@ module Narp
       (space? '>'i space? <CharacterOperator> ) / 
       (space? '<'i space? <CharacterOperator> ) / 
       (space? '='i space? <CharacterOperator> ) / 
+      (space? '+' space? <CharacterOperator> ) / 
       match_operator 1..1
     end
   end

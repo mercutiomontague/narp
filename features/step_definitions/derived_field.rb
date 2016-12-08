@@ -25,6 +25,7 @@ end
 
 
 Then(/^the column expression is (.+)/) do |str|
+  # puts "-->tree is #{@cur.inspect}"
 	expect( @cur.to_column_expression.gsub(/\s+/, ' ') ).to eq(str)
 end
 

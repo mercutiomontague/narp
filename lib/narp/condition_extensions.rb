@@ -5,12 +5,6 @@ module Narp
   class NumericTerminal < Treetop::Runtime::SyntaxNode
   end
 
-  class NumericValueRaw < Treetop::Runtime::SyntaxNode
-  end
-
-  class NumericValue < Treetop::Runtime::SyntaxNode
-  end
-
   class ArithmeticOperator < TerminalNode
   end
 

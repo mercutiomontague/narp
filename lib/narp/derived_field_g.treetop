@@ -13,7 +13,7 @@ module Narp
     end
 
     rule builtin_field
-      ('pagenumber'i space numeric_type <BuiltinField>) / ('today'i paren date_mask paren <BuiltinField>) / ('recordnumber'i space numeric_type <BuiltinField>) 
+      ('pagenumber'i space numeric_type <BuiltinField>) / ('today'i left_paren date_mask right_paren <BuiltinField>) / ('recordnumber'i space numeric_type <BuiltinField>) 
     end
 
     rule derived_field_expression
@@ -21,7 +21,7 @@ module Narp
     end
 
     rule source_value 
-      (conditional_expression / numeric_value / field_name / string ) 1..1  <SourceValue> 
+      (conditional_expression / expression / numeric_terminal / character_terminal / string  ) 1..1 <SourceValue> 
     end
 
     rule derived_type
@@ -32,10 +32,10 @@ module Narp
     end
 
     rule numeric_type
-      (numeric_format ordinal? <NumericType>) / 
-      (ordinal numeric_format  <NumericType>) /
-      (ordinal 'EN'i precision?  <NumericType>) /
-      (space? 'EN'i ordinal precision? <NumericType>) /
+      (numeric_format integer? <NumericType>) / 
+      (integer numeric_format  <NumericType>) /
+      (integer 'EN'i precision?  <NumericType>) /
+      (space? 'EN'i integer precision? <NumericType>) /
       (regex_type space 'en'i <NumericType>)
     end
 
@@ -44,8 +44,8 @@ module Narp
     end
 
     rule character_type
-      (space? 'character'i ordinal <CharacterType>) / 
-      (ordinal 'character'?  <CharacterType>) / 
+      (space? 'character'i integer <CharacterType>) / 
+      (integer 'character'?  <CharacterType>) / 
       (regex_type 'character'i  <CharacterType>)
     end
 
