@@ -37,9 +37,6 @@ module Narp
   end
 
   class CharacterOperator < TerminalNode
-    # def to_hql(indent=0)
-    #   if value == '+'
-    # end
   end
 
   class LogicalOperator < TerminalNode
@@ -49,11 +46,12 @@ module Narp
   end
 
   class CharacterExpression < Treetop::Runtime::SyntaxNode
-    attribute MatchOperator, CharacterOperator, Regex
+    attribute MatchOperator, CharacterOperator, Regex, CharacterExpression
     attributes CharacterTerminal
   
     def string_hql_expression
       return nil if regex
+      return character_terminals.first.to_hql unless (character_operator || match_operator)
       op = (character_operator || match_operator).value 
       case op
         when 'ct'
@@ -64,6 +62,8 @@ module Narp
           "#{character_terminals.first.to_hql} = #{character_terminals.last.to_hql}" 
         when 'nm'
           "#{character_terminals.first.to_hql} <> #{character_terminals.last.to_hql}" 
+        when '+'
+          "CONCAT(#{character_terminals.first.to_hql}, #{character_expression.to_hql})"
         else
           "#{character_terminals.first.to_hql} #{op} #{character_terminals.last.to_hql}" 
       end

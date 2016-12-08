@@ -101,15 +101,17 @@ class Class
   def attribute_definer( ar, match_type = 'myfind' )
     ar.each {|at|
       class_name, class_obj, meth_name = '', '', ''
-      if at.respond_to?(:each)
+      # The user can override the default naming by providing the class name and method_name
+      # in an array.
+      if at.respond_to?(:each)  
         class_obj, meth_name = at.first, at.last.to_s
        else
-         # insert an underscore before each cap, except the first
-         # class_name = at.to_s.split('::').last
-         # meth_name = class_name.gsub(/([A-Z]+)/, '_\1'.downcase).sub(/^_/, '').downcase
+         # Otherwise, construct a method name from the class name
          meth_name = at.to_s.to_method_name 
          class_obj = at
        end
+      # If match_type == 'myfind' then get the first object with a matching class in the syntax tree.
+      # If match_type == 'mysearch' then return all of the matching objects.
       self.class_eval(
         "def #{meth_name}; #{match_type}( #{class_obj} ); end"
       )

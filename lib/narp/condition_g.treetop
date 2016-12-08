@@ -15,13 +15,12 @@ module Narp
 
     rule expression 
       (left_paren expression right_paren expression* <Expression>) /
-      # ( sub_expression* (match_operator / character_operator / arithmetic_operator / numeric_operator / logical_operator) expression+ <Expression>) /
-      ( sub_expression* (arithmetic_operator / numeric_operator / logical_operator) expression+ <Expression>) /
-      ( sub_expression+  <Expression>) 
+      ( sub_expression* (arithmetic_operator / numeric_operator / logical_operator) expression <Expression>) /
+      ( sub_expression 1..1  <Expression>) 
     end
 
     rule sub_expression
-      character_expression / numeric_terminal
+      character_expression / numeric_terminal 
     end
 
     rule numeric_terminal 
@@ -45,7 +44,8 @@ module Narp
 
     rule character_expression
       (character_terminal match_operator regexp <CharacterExpression>) /
-      (character_terminal character_operator character_terminal <CharacterExpression>) 
+      (character_terminal character_operator character_expression <CharacterExpression>) /
+      (character_terminal 1..1 <CharacterExpression>)
     end
 
     rule character_terminal

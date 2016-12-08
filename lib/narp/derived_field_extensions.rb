@@ -201,11 +201,6 @@ module Narp
 
     def format_to_precision(z)
       return nil unless integer_part
-      # pieces = ["CAST(SPLIT(#{z}, '\\.')[0] AS VARCHAR(#{integer_part}))", 
-      # fractional_part && "CAST(SPLIT(#{z}, '\\.')[1] AS VARCHAR(#{fractional_part}))"].compact
-      # pieces.size == 1 ? 
-      #   pieces.pop : 
-      #     "CONCAT(" << pieces.join(", '.', ") << ')'
       "printf('%#{[integer_part, fractional_part].compact.join('.')}f', #{z})"
     end
 
