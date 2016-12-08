@@ -24,7 +24,6 @@ module Narp
       character_expression / numeric_terminal
     end
 
-
     rule numeric_terminal 
       (number 1..1  <NumericTerminal>) / (numeric_field_name 1..1 <NumericTerminal>) / (datetime_field_name 1..1 <NumericTerminal>) /
       (derived_field_name 1..1  <NumericTerminal>) 

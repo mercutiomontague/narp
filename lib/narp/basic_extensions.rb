@@ -187,18 +187,27 @@ module Narp
       str.gsub('\d', '\\\\\d').gsub('\D', '\\\\\D').gsub('\s', '\\\\\s').gsub('\S', '\\\\\S').gsub('\w', '\\\\\w').gsub('\W', '\\\\\W')
     end
 
+    # def to_hql(indent=0)
+    #   return nil unless regex
+    #   src = regex.case_insensitive? ? 'LOWER(' << myapp.placeholder << ')' : myapp.placeholder
+    #   pat = regex.case_insensitive? ? regex.value.downcase : regex.value
+    #   pat = escape_for_java(pat)
+
+    #   result = format_string.pieces.collect{|f|
+    #     f.gsub!(/\\(\d+)/) {|match| "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})" }
+    #     f
+    #   }
+    #  
+    #   'CONCAT(' << result.join(', ') << ')'
+    # end
+    #
     def to_hql(indent=0)
       return nil unless regex
       src = regex.case_insensitive? ? 'LOWER(' << myapp.placeholder << ')' : myapp.placeholder
       pat = regex.case_insensitive? ? regex.value.downcase : regex.value
       pat = escape_for_java(pat)
-
-      result = format_string.pieces.collect{|f|
-        f.gsub!(/\\(\d+)/) {|match| "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})" }
-        f
-      }
-     
-      'CONCAT(' << result.join(', ') << ')'
+      values = format_string.group_refs.collect {|key| "REGEXP_EXTRACT(#{src}, '#{pat}', #{key})" }.flatten
+      "printf('#{format_string.fmt_value}', #{values.join(', ')})"
     end
   end
 

@@ -37,6 +37,9 @@ module Narp
   end
 
   class CharacterOperator < TerminalNode
+    # def to_hql(indent=0)
+    #   if value == '+'
+    # end
   end
 
   class LogicalOperator < TerminalNode

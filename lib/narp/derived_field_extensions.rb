@@ -8,16 +8,27 @@ module Narp
 
   class FormatString < Treetop::Runtime::SyntaxNode
     # Break the format string into pieces of purely text or just group references
-    def pieces
-      parts = []
-      start = value.gsub(/^'|'$/, '')
-      begin
-        before, match, after = start.partition(/\\\d+/)
-        parts << "'#{before}'" unless before.empty?
-        parts << match unless match.empty?
-        start = after
-      end until start.empty?
-      parts.flatten
+    # def pieces
+    #   parts = []
+    #   start = value.gsub(/^'|'$/, '')
+    #   begin
+    #     before, match, after = start.partition(/\\\d+/)
+    #     parts << "'#{before}'" unless before.empty?
+    #     parts << match unless match.empty?
+    #     start = after
+    #   end until start.empty?
+    #   parts.flatten
+    # end
+    def value
+      text_value.strip.gsub(/^'|'$/, '')
+    end
+
+    def fmt_value
+      value.gsub(/\\(\d+)/, '%s')
+    end
+
+    def group_refs
+      value.scan(/\\(\d+)/).flatten
     end
   end
 
@@ -190,11 +201,12 @@ module Narp
 
     def format_to_precision(z)
       return nil unless integer_part
-      pieces = ["CAST(SPLIT(#{z}, '\\.')[0] AS VARCHAR(#{integer_part}))", 
-      fractional_part && "CAST(SPLIT(#{z}, '\\.')[1] AS VARCHAR(#{fractional_part}))"].compact
-      pieces.size == 1 ? 
-        pieces.pop : 
-          "CONCAT(" << pieces.join(", '.', ") << ')'
+      # pieces = ["CAST(SPLIT(#{z}, '\\.')[0] AS VARCHAR(#{integer_part}))", 
+      # fractional_part && "CAST(SPLIT(#{z}, '\\.')[1] AS VARCHAR(#{fractional_part}))"].compact
+      # pieces.size == 1 ? 
+      #   pieces.pop : 
+      #     "CONCAT(" << pieces.join(", '.', ") << ')'
+      "printf('%#{[integer_part, fractional_part].compact.join('.')}f', #{z})"
     end
 
     def format_to_length(z)

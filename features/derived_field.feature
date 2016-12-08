@@ -16,20 +16,20 @@ Feature: Parse the derived fields
 
     Examples:
       | expression                                   | column_expression            							| sequence 	| 
-      | calc1 fc1                                    | lhs_fc1 AS calc1   														| null			|
-      | calc1 -5 * 20                                | - 5 * 20 AS calc1   														| null			|
-      | calc2 fc2 23 compress ascii                  | TRIM(CAST(lhs_fc2 AS VARCHAR(23))) AS calc2   	| ascii 		|
-      | calc2 fc2 character 28 compress ascii        | TRIM(CAST(lhs_fc2 AS VARCHAR(28))) AS calc2   	| ascii 		|
-      | calc2 fc2 54 character compress ascii        | TRIM(CAST(lhs_fc2 AS VARCHAR(54))) AS calc2   	| ascii 		|
-      | calc3 23,000 en 6 compress                   | TRIM(CAST(23000 AS VARCHAR(6))) AS calc3   | null      |
-      | calc4 23 uinteger 8                          | CAST(23 AS VARCHAR(8)) AS calc4            | null      |
-      | calc5 92.5 float 4                           | CAST(92.5 AS VARCHAR(4)) AS calc5          | null      |
-      | calc5 fn1 + 92.5 float 4                     | CAST(lhs_fn1 + 92.5 AS VARCHAR(4)) AS calc5          | null      |
-      | calc6 13,292.5 extract /(\d+).+(\d+)/ '#1k' compress   | TRIM(CONCAT(REGEXP_EXTRACT(13292.5, '(\\\\\d+).+(\\\\\d+)', 1), 'k')) AS calc6 | null |
-      | calc7 29,333.53 en 10 4/1 | CONCAT(CAST(SPLIT(29333.53, '\\.')[0] AS VARCHAR(4)), '.', CAST(SPLIT(29333.53, '\\.')[1] AS VARCHAR(1))) AS calc7 | null |
-      | calc8 29,333.53 En 10 4 | CAST(SPLIT(29333.53, '\\.')[0] AS VARCHAR(4)) AS calc8 | null |
+      # | calc1 fc1                                    | lhs_fc1 AS calc1   														| null			|
+      # | calc1 -5 * 20                                | - 5 * 20 AS calc1   														| null			|
+      # | calc2 fc2 23 compress ascii                  | TRIM(CAST(lhs_fc2 AS VARCHAR(23))) AS calc2   	| ascii 		|
+      # | calc2 fc2 character 28 compress ascii        | TRIM(CAST(lhs_fc2 AS VARCHAR(28))) AS calc2   	| ascii 		|
+      # | calc2 fc2 54 character compress ascii        | TRIM(CAST(lhs_fc2 AS VARCHAR(54))) AS calc2   	| ascii 		|
+      # | calc3 23,000 en 6 compress                   | TRIM(CAST(23000 AS VARCHAR(6))) AS calc3   | null      |
+      # | calc4 23 uinteger 8                          | CAST(23 AS VARCHAR(8)) AS calc4            | null      |
+      # | calc5 92.5 float 4                           | CAST(92.5 AS VARCHAR(4)) AS calc5          | null      |
+      # | calc5 fn1 + 92.5 float 4                     | CAST(lhs_fn1 + 92.5 AS VARCHAR(4)) AS calc5          | null      |
+      # | calc6 13,292.5 extract /(\d+).+(\d+)/ '#1k' compress   | TRIM(printf('%sk', REGEXP_EXTRACT(13292.5, '(\\\\\d+).+(\\\\\d+)', 1))) AS calc6 | null |
+      # | calc7 29,333.53 en 10 4/1 | printf('%4.1f', 29333.53) AS calc7| null |
+      # | calc8 29,333.53 En 10 4 | printf('%4f', 29333.53) AS calc8 | null |
+      | calc9 fc2 + fc1         | printf('%s%s', fc2, fc1) AS calc9 | null |
       
-
   Scenario Outline: providing a character regex 
     Given an input /derivedfield <name> <expression>
     And an existing app that is reinitialized
@@ -41,8 +41,8 @@ Feature: Parse the derived fields
 
     Examples:
       | name      | expression                                      | column_expression                                                                       |
-      | calc1     | 'bluecheese' extract /(.+)cheese/i 'cheese: #1' truncate | RTRIM(CONCAT('cheese: ', REGEXP_EXTRACT(LOWER('bluecheese'), '(.+)cheese', 1))) AS calc1 |
-      | calc2     | fc1 extract /(.+)chee(.+)/i 'cheese: #2; then #1' | CONCAT('cheese: ', REGEXP_EXTRACT(LOWER(lhs_fc1), '(.+)chee(.+)', 2), '; then ', REGEXP_EXTRACT(LOWER(lhs_fc1), '(.+)chee(.+)', 1)) AS calc2 |
+      | calc1     | 'bluecheese' extract /(.+)cheese/i 'cheese: #1' truncate | RTRIM(printf('cheese: %s', REGEXP_EXTRACT(LOWER('bluecheese'), '(.+)cheese', 1))) AS calc1 |
+      | calc2     | fc1 extract /(.+)chee(.+)/i 'cheese: #2; then #1' | printf('cheese: %s; then %s', REGEXP_EXTRACT(LOWER(lhs_fc1), '(.+)chee(.+)', 2), REGEXP_EXTRACT(LOWER(lhs_fc1), '(.+)chee(.+)', 1)) AS calc2 |
 
   Scenario Outline: providing an if expression 
     Given an input /derivedfield <name> <expression>
