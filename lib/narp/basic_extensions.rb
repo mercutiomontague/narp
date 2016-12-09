@@ -184,31 +184,26 @@ module Narp
     # Need to escape the predefined character classes since Hive uses the java Regexp to implement its regexp_extract udf
     def escape_for_java(str)
       # We need to do this excessive amount of escaping to get past the subsequent interpolation
-      str.gsub('\d', '\\\\\d').gsub('\D', '\\\\\D').gsub('\s', '\\\\\s').gsub('\S', '\\\\\S').gsub('\w', '\\\\\w').gsub('\W', '\\\\\W')
+      str.gsub('\d', '\\\\\\\\\d').gsub('\D', '\\\\\\\\\D').gsub('\s', '\\\\\\\\\s').gsub('\S', '\\\\\\\\\S').gsub('\w', '\\\\\\\\\w').gsub('\W', '\\\\\\\\\W')
     end
 
-    # def to_hql(indent=0)
-    #   return nil unless regex
-    #   src = regex.case_insensitive? ? 'LOWER(' << myapp.placeholder << ')' : myapp.placeholder
-    #   pat = regex.case_insensitive? ? regex.value.downcase : regex.value
-    #   pat = escape_for_java(pat)
-
-    #   result = format_string.pieces.collect{|f|
-    #     f.gsub!(/\\(\d+)/) {|match| "REGEXP_EXTRACT(#{src}, '#{pat}', #{$1})" }
-    #     f
-    #   }
-    #  
-    #   'CONCAT(' << result.join(', ') << ')'
-    # end
-    #
     def to_hql(indent=0)
       return nil unless regex
       src = regex.case_insensitive? ? 'LOWER(' << myapp.placeholder << ')' : myapp.placeholder
       pat = regex.case_insensitive? ? regex.value.downcase : regex.value
       pat = escape_for_java(pat)
-      values = format_string.group_refs.collect {|key| "REGEXP_EXTRACT(#{src}, '#{pat}', #{key})" }.flatten
+
+      values = format_string.group_refs.collect {|arg| 
+       # Substitute for longer references to avoid inadvertently replacing subsequences... ie: \1 versus \11
+       arg.scan(/\\(\d+)/).sort_by{|a| a.length}.each {|m|
+         arg.gsub!("\\#{m.first}", "REGEXP_EXTRACT(#{src}, '#{pat}', #{m.first})") 
+       } 
+       arg
+      }
+
       "printf('#{format_string.fmt_value}', #{values.join(', ')})"
     end
+
   end
 
 end

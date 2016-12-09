@@ -7,18 +7,6 @@ module Narp
   end
 
   class FormatString < Treetop::Runtime::SyntaxNode
-    # Break the format string into pieces of purely text or just group references
-    # def pieces
-    #   parts = []
-    #   start = value.gsub(/^'|'$/, '')
-    #   begin
-    #     before, match, after = start.partition(/\\\d+/)
-    #     parts << "'#{before}'" unless before.empty?
-    #     parts << match unless match.empty?
-    #     start = after
-    #   end until start.empty?
-    #   parts.flatten
-    # end
     def value
       text_value.strip.gsub(/^'|'$/, '')
     end
@@ -28,7 +16,7 @@ module Narp
     end
 
     def group_refs
-      value.scan(/\\(\d+)/).flatten
+      value.scan(/(\\\d+)/).flatten
     end
   end
 

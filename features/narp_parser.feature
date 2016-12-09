@@ -144,7 +144,7 @@ Feature: Parse a narp statement
       | calc4     | 23 uinteger 8                          | CAST(23 AS VARCHAR(8)) AS calc4            | null      |
       | calc5     | 92.5 float 4                           | CAST(92.5 AS VARCHAR(4)) AS calc5          | null      |
       | calc5     | fn1 + 92.5 float 4                     | CAST(lhs_fn1 + 92.5 AS VARCHAR(4)) AS calc5          | null      |
-      | calc6     | 13,292.5 extract /(\d+).+(\d+)/ '#1k' compress   | TRIM(printf('%sk', REGEXP_EXTRACT(13292.5, '(\\\\\d+).+(\\\\\d+)', 1))) AS calc6 | null |
+      | calc6     | 13,292.5 extract /(\d+).+(\d+)/ '#1k' compress   | TRIM(printf('%sk', REGEXP_EXTRACT(13292.5, '(\\\\\\d+).+(\\\\\\d+)', 1))) AS calc6 | null |
       | calc7     | 29,333.53 en 10 4/1 | printf('%4.1f', 29333.53) AS calc7 | null |
       | calc8     | 29,333.53 En 10 4 | printf('%4f', 29333.53) AS calc8 | null |
       

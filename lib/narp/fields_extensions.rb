@@ -68,11 +68,11 @@ module Narp
         when 'mon'
           '(january|february|march|april|may|june|july|august|september|october|november|december)'
         when 'mn'
-          '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\\\\.?'
+          '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\\\\\.?'
         when 'day'
           '(monday|tuesday|wednesday|thursday|friday|saturday|sunday)'
         when 'dy'
-          '(mon|tu|tue|tues|wed|th|thu|thur|thrus|fri|sat|sun)\\\\.?'
+          '(mon|tu|tue|tues|wed|th|thu|thur|thrus|fri|sat|sun)\\\\\.?'
         when 'am'
           '(am|pm)'
         when 'a.m.'
@@ -109,37 +109,46 @@ module Narp
       @dt_parts = dts
     end
 
-    def pieces 
-      [dt.interleave("'-'"), "' '", time_pcs.interleave("':'")].flatten 
+    def group_refs
+      [:year, :month, :day, :hour, :minute, :second].collect{|x|
+        if x == :month
+            month_mapper || wrapped_group_reference(x) || '1' 
+        elsif x == :hour
+          hour_mapper || wrapped_group_reference(x) || '0'
+        else
+          wrapped_group_reference(x) || (x == :day ? '1' : '0')
+        end
+      }
+    end
+
+    def fmt_value
+      '%4d-%02d-%02d %02d:%02d:%02d'
     end
 
     def _reference_position(type)
       dt_parts.index{|d| d.type == type} ? dt_parts.index{|d| d.type == type} + 1 : nil
     end
-
+    
     def _group_reference(type)
       _reference_position(type) ? "\\#{_reference_position(type)}" : nil
     end
 
-    def time_pcs
-      pcs = [:hour, :minute, :second].collect{|part| _group_reference(part) ? _group_reference(part) : "'00'"}
-      pcs[0] = "CAST(" << pcs[0] << " AS INT) " << " + CASE WHEN " << _group_reference(:meridiem_indicator) << " IN ('a.m.', 'am') THEN 0 ELSE 12 END" if _group_reference(:meridiem_indicator) 
-      pcs
+    def wrapped_group_reference(type)
+      _group_reference(type) ? "CAST(" << _group_reference(type) << " AS INT)" : nil
     end
 
-    def dt
-      pcs = [:year, :month, :day].collect{|part| _group_reference(part) ? _group_reference(part) : "'01'"} 
-      pcs[1] = wrap_with_month_mapper( pcs[1] )
-      pcs
+    def hour_mapper
+      return nil unless _reference_position(:meridiem_indicator)     
+      "CAST(#{_group_reference(:hour)} AS INT) + CASE WHEN " << _group_reference(:meridiem_indicator) << " IN ('a.m.', 'am') THEN 0 ELSE 12 END" 
     end
 
     # Map month and month acronyms to their 2 digit code. This is necessary since Hive
     # can not natively handle 2016-january-21 but can work with 2016-01-21
-    def wrap_with_month_mapper( elem )
-      return elem unless m = dt_parts.detect{|p| ['mon', 'mn'].detect{|d| d == p.value }}
+    def month_mapper
+      return nil unless m = dt_parts.detect{|p| ['mon', 'mn'].detect{|d| d == p.value }}
 
       if m.value == 'mon'
-        "CASE #{elem}\n" <<
+        "CASE #{_group_reference(:month)}\n" <<
         "WHEN 'january' THEN 1\n" <<
         "WHEN 'february' THEN 2\n" <<
         "WHEN 'march' THEN 3\n" <<
@@ -154,7 +163,7 @@ module Narp
         "WHEN 'december' THEN 12\n" <<
         "END" 
       else
-        "CASE #{elem}\n" <<
+        "CASE #{_group_reference(:month)}\n" <<
         "WHEN 'jan' THEN 1\n" <<
         "WHEN 'feb' THEN 2\n" <<
         "WHEN 'mar' THEN 3\n" <<
@@ -170,7 +179,7 @@ module Narp
         "END" 
       end
     end
-
+    
   end
 
   class FieldFormat < Treetop::Runtime::SyntaxNode
