@@ -48,12 +48,10 @@ module Narp
     end
   
     rule identifier
-      # space? [a-zA-Z0-9_]+ space? <MyIdentifier>
       space? [a-zA-Z]+ [a-zA-Z0-9_]* space? <MyIdentifier>
     end
     
     rule integer
-      # space? ('+' / '-')? [0-9]+ space? <IntegerLiteral>
       space? [0-9]+ space? <IntegerLiteral>
     end
 

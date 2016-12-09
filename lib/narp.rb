@@ -96,7 +96,7 @@ module Narp
   
       p = SyntaxTree.new('Narp')
       tree = p.parse(input)
-      puts tree.inspect if (orig_input != input)
+      puts tree.inspect if (orig_input != input) # ie. print out the syntax tree if the verbose flag was specified.
       case tree.class.to_s
         when 'Narp::Domain'
           @domain = tree.name

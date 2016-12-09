@@ -194,7 +194,7 @@ module Narp
       pat = escape_for_java(pat)
 
       values = format_string.group_refs.collect {|arg| 
-       # Substitute for longer references to avoid inadvertently replacing subsequences... ie: \1 versus \11
+       # Substitute for longer references first to avoid replacing subsequences... ie: \1 versus \11
        arg.scan(/\\(\d+)/).sort_by{|a| a.length}.each {|m|
          arg.gsub!("\\#{m.first}", "REGEXP_EXTRACT(#{src}, '#{pat}', #{m.first})") 
        } 
