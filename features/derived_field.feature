@@ -58,7 +58,7 @@ Feature: Parse the derived fields
       | name      | expression                         | column_expression                                              |
       | calc1     | if cond2 then 25.3 else 56         | CASE WHEN _cond2_ THEN 25.3 ELSE 56 END AS calc1   |
       | calc2     | if cond2 then if cond5 then 22 + fn1 else 23 else 56         | CASE WHEN _cond2_ THEN CASE WHEN _cond5_ THEN 22 + lhs_fn1 ELSE 23 END ELSE 56 END AS calc2   |
-      | calc3     | if cond2 then if cond5 then 22 + fn1 else if cond7 then 15+fn3 else 0 else 56         | CASE WHEN _cond2_ THEN CASE WHEN _cond5_ THEN 22 + lhs_fn1 ELSE CASE WHEN _cond7_ THEN 15 + lhs_fn3 ELSE 0 END END ELSE 56 END AS calc3   |
+      | calc3     | if cond2 then if cond5 then fc2 + fc1 + fc2 else if cond7 then 15+fn3 else 0 else 56         | CASE WHEN _cond2_ THEN CASE WHEN _cond5_ THEN CONCAT(lhs_fc2, CONCAT(lhs_fc1, lhs_fc2)) ELSE CASE WHEN _cond7_ THEN 15 + lhs_fn3 ELSE 0 END END ELSE 56 END AS calc3   |
 
 
   Scenario Outline: A derived expression referencing another derived_expression

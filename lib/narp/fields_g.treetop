@@ -56,7 +56,8 @@ module Narp
     end
 
     rule delimited_field
-      delimited_start space? delimited_stop? space? field_format? <DelimitedField>
+      # delimited_start space? delimited_stop? space? field_format? <DelimitedField>
+      delimited_start delimited_stop? field_format? <DelimitedField>
     end
 
     rule delimited_start
@@ -64,15 +65,15 @@ module Narp
     end
 
     rule delimited_stop
-      '-' space? delimited_position <DelimitedStop>
+      '-' delimited_position <DelimitedStop>
     end
 
     rule delimited_position
-      ordinal space? ':' (space? ordinal)? (space 'NOBLANK'i)? space? <DelimitedPosition>
+      ordinal ':' ordinal? (space 'NOBLANK'i)? space? <DelimitedPosition>
     end
 
     rule field_modifier
-       (precision space? <FieldModifier>) / (sequence space? <FieldModifier>)
+       (precision 1..1 <FieldModifier>) / (sequence space?  <FieldModifier>)
     end
 
 		rule numeric_format

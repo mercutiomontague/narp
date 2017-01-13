@@ -136,7 +136,7 @@ module Narp
 
     def ddl
       raise ArgumentError.new("The file type #{organization.value} isn't currently supported") unless organization.nil? || organization.value == 'sequential'
-      %Q[SET textinputformat.record.delimiter="#{line_seperator}";\n] << 
+      # %Q[SET textinputformat.record.delimiter="#{line_seperator}";\n] << 
       "CREATE EXTERNAL TABLE #{hive_name}\n(\n" <<
       "\t" << fields_string <<
       "\n)\n" <<

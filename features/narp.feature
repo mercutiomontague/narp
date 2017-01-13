@@ -32,25 +32,26 @@ Feature: Parse the definition of a an ETL program using the Narp language
       | f2,f8,f7          | []                  | i9,i2            | i3,i5               | f2:1, f8:2, f7:3             | i9:4, i2:5, i3:6, i5:7      |
 
 
+  @current
   Scenario: Providing a complete application definition
 		Given an existing app that is reinitialized 
     And the app parses /domain zions_1
     And the app parses /infile '/short/path/my file 1.txt' alias moo '\t'  Sequential compressed highcompression 349 15 stream crlf	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 
     And the app parses /infile 'file 2.txt' alias zoo fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8
-    # And the app parses /fields my_col 4:1 integer 
-    # And the app parses /fields col3 3:3 - 5:7 
+    And the app parses /fields my_col 4:1 integer 
+    And the app parses /fields col3 3:3 - 5:7 
     And the app parses /fields dateCol 6:1 datetime mm/yy-dd0 hh 
-    # And the app parses /condition cond11 col3 ct "green" oR my_col < 10
-    # And the app parses /condition cond2 col3 mt /yel/i
-    # And the app parses /reformat dateCol, rightside:my_col
-    # And the app parses /outfile 'out file 1.txt' Sequential compressed
-    # And the app parses /joinkeys col3
-    # And the app parses /include cond11
-    # And the app parses /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 NUMBER_OF_COLUMNS 8
-    # And the app parses /joinkeys my_col 
-		# And the app parses /join unpaired leftside
-    # And the app parses /outfile 'path/to/file/out_file22.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22
-    # And the app parses /include cond2
+    And the app parses /condition cond11 col3 ct "green" oR my_col < 10
+    And the app parses /condition cond2 col3 mt /yel/i
+    And the app parses /reformat dateCol, rightside:my_col
+    And the app parses /outfile 'out file 1.txt' Sequential compressed
+    And the app parses /joinkeys col3
+    And the app parses /include cond11
+    And the app parses /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 NUMBER_OF_COLUMNS 8
+    And the app parses /joinkeys my_col 
+		And the app parses /join unpaired leftside
+    And the app parses /outfile 'path/to/file/out_file22.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22
+    And the app parses /include cond2
     # Then the ddl should match app_spec_0 
     #  And the preprocess should match app_spec_0
     #  And the hql should match app_spec_0
@@ -208,7 +209,6 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And show the app infile s3 mappings
     And show the app outfile s3 mappings
 		
-  @current
   Scenario: Providing a complete application definition
 		Given an existing app that is reinitialized 
     And the app parses /domain zions_1
