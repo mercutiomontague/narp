@@ -114,14 +114,6 @@ module Narp
 			OpenStruct.new(:value=>"\t", :escaped_value => '\t')
 		end
 
-    def hdfs_path
-      ::File.join('hdfs:/', myapp.hdfs_in_path, uncompressed_name)
-    end
-
-    def hive_name
-      @hive_name ||= "t_#{myapp.next_sequence}"
-    end
-
     def line_seperator
       stream_record_format && stream_record_format.escaped_value || '\n'
     end
@@ -130,21 +122,31 @@ module Narp
       file_fields.collect{|i| "#{i.respond_to?(:name) ? i.name : i.to_s} varchar(65000)"}.join("\n\t, ") 
     end
 
+    def table_name
+      @table_name ||= [myapp.domain, "t_#{myapp.next_sequence}"].join('.')
+    end
+
     def drop_ddl
-      "DROP TABLE #{hive_name};"
+      "DROP TABLE #{table_name};"
     end
 
     def ddl
       raise ArgumentError.new("The file type #{organization.value} isn't currently supported") unless organization.nil? || organization.value == 'sequential'
       # %Q[SET textinputformat.record.delimiter="#{line_seperator}";\n] << 
-      "CREATE EXTERNAL TABLE #{hive_name}\n(\n" <<
+      "CREATE EXTERNAL TABLE #{table_name}\n(\n" <<
       "\t" << fields_string <<
       "\n)\n" <<
       "ROW FORMAT\n" <<
       "\tDELIMITED FIELDS TERMINATED BY '#{field_seperator.escaped_value}'\n" <<
       "\tNULL DEFINED AS ''\n" <<
       "STORED AS TEXTFILE\n" <<
-      "LOCATION '#{hdfs_path}/'\n;"
+      "LOCATION '#{remote_location}/'\n;"
+    end
+
+    def s3_location
+      target = (name.to_s =~ /\.gz$|\.zip$/ ? name.to_s : name.to_s << ".gz")
+      prefix = ::File.join(::File.dirname(target), ::File.basename(target).split('.').first)
+      ::File.join(s3_path_prefix, prefix, ::File.basename(target))
     end
 
   end
@@ -152,8 +154,7 @@ module Narp
   class FilesList < PositionalList
     def s3_mappings
       inject( {} ) { |memo, item| 
-        target = (item.name.to_s =~ /\.gz$|\.zip$/ ? item.name.to_s : item.name.to_s << ".gz")
-        memo[ target ] = ::File.join(s3_path_prefix, target)
+        memo[ item ] = item.s3_location
         memo
       }
     end 

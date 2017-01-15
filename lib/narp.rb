@@ -8,8 +8,6 @@ require 'narp/syntax_tree.rb'
 require 'narp/node_extensions.rb'
 require 'narp/narp.treetop'
 require 'json'
-require 'narp/hive/adapter.rb'
-require 'narp/hive/fs.rb'
 
 module Narp
   class Narp < OpenStruct
@@ -24,10 +22,10 @@ module Narp
     attr :adapter, :fs
   
     def initialize
-      init
+      init(sys: :hive, domain: nil)
     end
   
-  	def init(domain = nil)
+  	def init(sys: :hive, domain: nil)
       @domain = domain
       @@seq = 0
       @fields = []
@@ -41,9 +39,18 @@ module Narp
       @includes = IncludesList.new
       @joinkeys = JoinKeysList.new
       @output_spec = OutputSpec.new
-      @adapter = Hive::Adapter.new
-      @fs = Hive::Fs.new
+      @sys = sys
+      if @sys == :hive
+        Dir.entries(::File.join( ::File.dirname(__FILE__), 'narp', 'hive')).each {|f|
+          next if f =~ /^\.{1,2}/
+          require ::File.join('narp', 'hive', f)
+        }
+
+        @adapter = Hive::Adapter.new
+        @fs = Hive::Fs.new
+      end
   	end
+
 
     PATH_DEFAULTS = {s3_in_path: "s3://narp-in-dev",
                       s3_out_path: "s3://narp-out-dev",
@@ -197,7 +204,7 @@ module Narp
       infiles.rhs_tables
     end
 
-    [:ddl, :hql, :cleanup_db].each {|meth|
+    [:ddl, :sql, :cleanup_db].each {|meth|
       define_method( meth ) {
         adapter.send(meth)
       }
@@ -222,7 +229,7 @@ module Narp
 			{'Preprocess' => preprocess,  
        'Analyze' => analyze,
        'Initialize' => ddl, 
-			 'Process' => hql, 
+			 'Process' => sql, 
 			 'Postprocess' => postprocess, 
        'Cleanup Database' => cleanup_db,
        'Cleanup Filesystem' => cleanup_fs

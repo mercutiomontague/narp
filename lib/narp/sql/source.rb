@@ -1,7 +1,7 @@
 require 'narp/node_extensions.rb'
 
 module Narp
-  module Hive
+  module Sql 
     class Source
       include MyAppAccessor
 

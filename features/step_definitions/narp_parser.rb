@@ -44,7 +44,7 @@ Given(/^additional (outfiles .+)$/) do |list|
 end
 
 Given(/^an existing app that is reinitialized( with (.+) domain)?$/) do |phrase, domain|
-  myapp.init(domain)
+  myapp.init(domain: domain)
 end
 
 Given(/^additional (includes .+)$/) do |list|
