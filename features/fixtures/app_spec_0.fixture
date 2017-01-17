@@ -53,6 +53,8 @@ preprocess: |
       hadoop fs -copyFromLocal ~/pre/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 hdfs:///user/hadoop/in/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
 ddl: | 
+      CREATE DATABASE stage;
+
       CREATE EXTERNAL TABLE stage.moo
       (
       	col_1 varchar(65000)
@@ -66,9 +68,9 @@ ddl: |
       )
       ROW FORMAT
       	DELIMITED FIELDS TERMINATED BY 's'
-      	LINES TERMINATED BY '\n'
+      	NULL DEFINED AS ''
       STORED AS TEXTFILE
-      LOCATION 'hdfs:///user/hadoop/in/My text_file.txt_66d4de0c440182b5167cbc714a649d2cf2ad9cf2b3714455e98af8fca651c6cb'
+      LOCATION 'hdfs:/user/hadoop/in/stage/short/path/My text_file.txt/'
       ;
       
       CREATE EXTERNAL TABLE stage.zoo
@@ -84,9 +86,9 @@ ddl: |
       )
       ROW FORMAT
       	DELIMITED FIELDS TERMINATED BY '\t'
-      	LINES TERMINATED BY '\n'
+      	NULL DEFINED AS ''
       STORED AS TEXTFILE
-      LOCATION 'hdfs:///user/hadoop/in/Your text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+      LOCATION 'hdfs:/user/hadoop/in/stage/Your text_file.txt/'
       ;
       
       CREATE EXTERNAL TABLE stage.foo
@@ -96,40 +98,37 @@ ddl: |
       	, col_3 varchar(65000)
       	, col_4 varchar(65000)
       	, col_5 varchar(65000)
-      	, col_6 varchar(65000)
-      	, col_7 varchar(65000)
-      	, col_8 varchar(65000)
       )
       ROW FORMAT
       	DELIMITED FIELDS TERMINATED BY '\t'
-      	LINES TERMINATED BY '\n'
+      	NULL DEFINED AS ''
       STORED AS TEXTFILE
-      LOCATION 'hdfs:///user/hadoop/in/third_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+      LOCATION 'hdfs:/user/hadoop/in/stage/third_file.txt/'
       ;
       
       CREATE EXTERNAL TABLE stage.t_11
       (
-      	dateCol varchar(65000)
-      	, my_col varchar(65000)
+      	lhs_dateCol varchar(65000)
+      	, rhs_my_col varchar(65000)
       )
       ROW FORMAT
       	DELIMITED FIELDS TERMINATED BY 's'
-      	LINES TERMINATED BY '\n'
+      	NULL DEFINED AS ''
       STORED AS TEXTFILE
-      LOCATION 'hdfs:///user/hadoop/in/Her text_file.txt_e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+      LOCATION 'hdfs:/user/hadoop/out/stage/'Her text_file.txt'/'
       ;
       
       CREATE EXTERNAL TABLE stage.t_12
       (
       	row_num varchar(65000)
-      	, dateCol varchar(65000)
-      	, my_col varchar(65000)
+      	, lhs_dateCol varchar(65000)
+      	, rhs_my_col varchar(65000)
       )
       ROW FORMAT
       	DELIMITED FIELDS TERMINATED BY '\t'
-      	LINES TERMINATED BY '\n'
+      	NULL DEFINED AS ''
       STORED AS TEXTFILE
-      LOCATION 'hdfs:///user/hadoop/in/His text_file.txt_620475252180ec1d80f2b16dee4464a085d8bb91c39fe025cc5fadb69900ed79'
+      LOCATION 'hdfs:/user/hadoop/out/stage/'path/to/file/His text_file.txt'/'
       ;
 
 hql: |

@@ -7,7 +7,7 @@ module Narp
   class File < Treetop::Runtime::SyntaxNode
 
     def hdfs_path
-      ::File.join('hdfs:/', myapp.hdfs_in_path, uncompressed_name)
+      ::File.join('hdfs:/', myapp.hdfs_in_path, uncompressed_name.gsub(/'|"/, ''))
     end
 
     def remote_location

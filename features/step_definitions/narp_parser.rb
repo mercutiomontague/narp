@@ -1,5 +1,5 @@
 module DummyToHql
-  def to_hql(indent=0)
+  def to_sql(indent=0)
     "_#{name}_"
   end
 end

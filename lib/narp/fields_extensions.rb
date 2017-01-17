@@ -195,7 +195,7 @@ module Narp
           raise( ArgumentError.new("Unknown format") )
     end
 
-    def to_hql
+    def to_sql
       return nil unless dt_parts.any?
       
       #Generate a regex pattern from the dt_parts
@@ -205,7 +205,7 @@ module Narp
       
 
       #Generate the format_string
-      # Now call RegexHql.to_hql
+      # Now call RegexHql.to_sql
       "CAST(#{super} AS TIMESTAMP)" 
     end
 
@@ -337,9 +337,9 @@ module Narp
       field_format ? field_format : OpenStruct.new(:value => 'character', :dt_parts=>[])
     end
 
-    def to_hql 
-      if field_format && field_format.to_hql 
-        field_format.to_hql.gsub(myapp.placeholder, delimited_field.expression)
+    def to_sql 
+      if field_format && field_format.to_sql 
+        field_format.to_sql.gsub(myapp.placeholder, delimited_field.expression)
       else
         delimited_field.expression
       end
@@ -351,7 +351,7 @@ module Narp
     attribute [FieldDescription, :description], [FieldModifier, :modifier]
 
     def to_column_expression
-      "#{description.to_hql} AS #{name}"
+      "#{description.to_sql} AS #{name}"
     end
 
     def method_missing(meth, *args, &block)

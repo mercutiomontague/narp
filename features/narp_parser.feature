@@ -52,10 +52,10 @@ Feature: Parse a narp statement
 		And the app has character fields <character_field_list>
     When parsed by Narp 
    	Then the condition is called <name> 
-    And the hql is <hql>
+    And the sql is <sql>
   
   	Examples:
-  	|  name		  | condition 				                  |numeric_field_list  | character_field_list |  hql |
+  	|  name		  | condition 				                  |numeric_field_list  | character_field_list |  sql |
   	| c_cond	  | 5"blue" ct "green" anD int6 < 10    |	int6, int9         | []                   | LOCATE('green', 'blueblueblueblueblue') > 0 AND lhs_int6 < 10|
   	| d_cond	  | int6 < 10 and 5"blue" ct "green"    |	int6, int9         | []                   | lhs_int6 < 10 AND LOCATE('green', 'blueblueblueblueblue') > 0 |
 

@@ -43,14 +43,14 @@ module Narp
       else_expression && else_expression.source_value
     end
 
-    def to_hql(indent=0)
-      ["CASE", ["WHEN #{my_condition_name.to_hql} THEN", then_clause.to_hql(indent+1), "ELSE", else_clause.to_hql(indent+1)].join("\n").myindent(1), "END"].join("\n").myindent(indent)
+    def to_sql(indent=0)
+      ["CASE", ["WHEN #{my_condition_name.to_sql} THEN", then_clause.to_sql(indent+1), "ELSE", else_clause.to_sql(indent+1)].join("\n").myindent(1), "END"].join("\n").myindent(indent)
     end
 
   end
 
   class NumericFormat < Treetop::Runtime::SyntaxNode
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       case value
       when 'uninteger', 'integer'
         'INTEGER'
@@ -72,8 +72,8 @@ module Narp
   end
 
   module CommonTypeBehavior
-    def to_hql(indent=0)
-      regex_type.to_hql(indent)
+    def to_sql(indent=0)
+      regex_type.to_sql(indent)
     end
 
     def length 
@@ -105,8 +105,8 @@ module Narp
     attribute CharacterType, FormatEdit, SequenceName
     attribute NumericType, RegexType
 
-		def to_hql(indent)
-      candidate.to_hql(indent) if candidate 
+		def to_sql(indent)
+      candidate.to_sql(indent) if candidate 
 		end
 
 		def length
@@ -152,11 +152,11 @@ module Narp
     # attribute FieldName, NumericValue, ConditionalExpression, String
     attribute ConditionalExpression, Expression, NumericTerminal, CharacterTerminal, String
 
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       if myobj.is_a?(ConditionalExpression)
-        myobj.to_hql(indent)
+        myobj.to_sql(indent)
       else
-        myobj.to_hql.myindent(indent)
+        myobj.to_sql.myindent(indent)
       end
     end
 
@@ -174,13 +174,13 @@ module Narp
   class DerivedFieldExpression < Treetop::Runtime::SyntaxNode
     attribute SourceValue, DerivedType
 
-    def to_hql(indent=0)
-			return source_value.to_hql(indent) unless derived_type
+    def to_sql(indent=0)
+			return source_value.to_sql(indent) unless derived_type
 
       z = if derived_type.regex
-        derived_type.to_hql(indent).gsub(myapp.placeholder, source_value.to_hql)
+        derived_type.to_sql(indent).gsub(myapp.placeholder, source_value.to_sql)
       else
-        source_value.to_hql(indent)
+        source_value.to_sql(indent)
       end
 
 			# Format to precision or trim the result if necessary
@@ -226,11 +226,11 @@ module Narp
     attribute BuiltinField, DerivedFieldExpression 
 
     def to_column_expression(indent=0)
-      to_hql(indent) << " AS #{name}"
+      to_sql(indent) << " AS #{name}"
     end
 
-    def to_hql(indent=0)
-      (builtin_field ||  derived_field_expression).to_hql(indent) 
+    def to_sql(indent=0)
+      (builtin_field ||  derived_field_expression).to_sql(indent) 
     end
 
     def method_missing(meth, *args, &block)

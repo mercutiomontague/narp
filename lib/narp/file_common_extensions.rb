@@ -138,6 +138,7 @@ module Narp
       "\n)\n" <<
       "ROW FORMAT\n" <<
       "\tDELIMITED FIELDS TERMINATED BY '#{field_seperator.escaped_value}'\n" <<
+      "\tLINES TERMINATED BY '\n'" <<
       "\tNULL DEFINED AS ''\n" <<
       "STORED AS TEXTFILE\n" <<
       "LOCATION '#{remote_location}/'\n;"
@@ -145,7 +146,7 @@ module Narp
 
     def s3_location
       target = (name.to_s =~ /\.gz$|\.zip$/ ? name.to_s : name.to_s << ".gz")
-      prefix = ::File.join(::File.dirname(target), ::File.basename(target).split('.').first)
+      prefix = ::File.join(::File.dirname(target), ::File.basename(target).split('.')[0..-2]).sub(/^\./, '')
       ::File.join(s3_path_prefix, prefix, ::File.basename(target))
     end
 
@@ -154,7 +155,7 @@ module Narp
   class FilesList < PositionalList
     def s3_mappings
       inject( {} ) { |memo, item| 
-        memo[ item ] = item.s3_location
+        memo[ item.name.value ] = item.s3_location
         memo
       }
     end 

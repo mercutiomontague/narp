@@ -51,27 +51,27 @@ module Narp
   
     def string_hql_expression
       return nil if regex
-      return character_terminals.first.to_hql unless (character_operator || match_operator)
+      return character_terminals.first.to_sql unless (character_operator || match_operator)
       op = (character_operator || match_operator).value 
       case op
         when 'ct'
-          "LOCATE( #{character_terminals.last.to_hql}, #{character_terminals.first.to_hql}) > 0" 
+          "LOCATE( #{character_terminals.last.to_sql}, #{character_terminals.first.to_sql}) > 0" 
         when 'nc'
-          "LOCATE( #{character_terminals.last.to_hql}, #{character_terminals.first.to_hql} ) = 0"
+          "LOCATE( #{character_terminals.last.to_sql}, #{character_terminals.first.to_sql} ) = 0"
         when 'mt'
-          "#{character_terminals.first.to_hql} = #{character_terminals.last.to_hql}" 
+          "#{character_terminals.first.to_sql} = #{character_terminals.last.to_sql}" 
         when 'nm'
-          "#{character_terminals.first.to_hql} <> #{character_terminals.last.to_hql}" 
+          "#{character_terminals.first.to_sql} <> #{character_terminals.last.to_sql}" 
         when '+'
-          "CONCAT(#{character_terminals.first.to_hql}, #{character_expression.to_hql})"
+          "CONCAT(#{character_terminals.first.to_sql}, #{character_expression.to_sql})"
         else
-          "#{character_terminals.first.to_hql} #{op} #{character_terminals.last.to_hql}" 
+          "#{character_terminals.first.to_sql} #{op} #{character_terminals.last.to_sql}" 
       end
     end
 
     def regex_hql_expression
       return nil unless regex
-      lhs = regex.case_insensitive? ? "LOWER(#{character_terminals.first.to_hql})" : character_terminals.first.to_hql
+      lhs = regex.case_insensitive? ? "LOWER(#{character_terminals.first.to_sql})" : character_terminals.first.to_sql
       rhs = regex.case_insensitive? ? regex.value.downcase : regex.value
       case match_operator.value
       when 'mt'
@@ -81,7 +81,7 @@ module Narp
       end
     end
 
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       string_hql_expression || regex_hql_expression
     end
   end
@@ -96,9 +96,9 @@ module Narp
     end
 
     # Convert the condition into hql, taking particular care with regular expressions
-    def to_hql
-      # mysearch( Expression, LogicalOperator, ParenthesisLiteral ).collect{|s| s.to_hql}.join(' ').squeeze(' ').gsub(/\(\s+/, '(').gsub(/\s+\)/, ')')
-      mysearch( Expression, LogicalOperator, ParenthesisLiteral ).collect{|s| s.to_hql}.join(' ').gsub(/\(\s+/, '(').gsub(/\s+\)/, ')')
+    def to_sql
+      # mysearch( Expression, LogicalOperator, ParenthesisLiteral ).collect{|s| s.to_sql}.join(' ').squeeze(' ').gsub(/\(\s+/, '(').gsub(/\s+\)/, ')')
+      mysearch( Expression, LogicalOperator, ParenthesisLiteral ).collect{|s| s.to_sql}.join(' ').gsub(/\(\s+/, '(').gsub(/\s+\)/, ')')
     end
   end
 

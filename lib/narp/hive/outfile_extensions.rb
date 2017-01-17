@@ -47,7 +47,7 @@ module Narp
 
     def insert_sql
       ["INSERT #{hive_write_mode} TABLE #{table_name}",
-       "SELECT\n\t" << sql_cols.join("\n\t"), 
+       "SELECT\n\t" << sql_cols.join("\n\t, "), 
        where_clause
       ].compact.join("\n")
     end
@@ -74,7 +74,7 @@ module Narp
     end
 
     def move_post2s3
-      "aws s3 cp #{stage_dest}.gz #{::File.join(myapp.s3_out_path, name.to_s)}.gz"
+      "aws s3 cp #{stage_dest}.gz #{s3_location}"
     end
   end
   

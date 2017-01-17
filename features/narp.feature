@@ -32,7 +32,6 @@ Feature: Parse the definition of a an ETL program using the Narp language
       | f2,f8,f7          | []                  | i9,i2            | i3,i5               | f2:1, f8:2, f7:3             | i9:4, i2:5, i3:6, i5:7      |
 
 
-  @current
   Scenario: Providing a complete application definition
 		Given an existing app that is reinitialized 
     And the app parses /domain zions_1
@@ -54,20 +53,23 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include cond2
     # Then the ddl should match app_spec_0 
     #  And the preprocess should match app_spec_0
-    #  And the hql should match app_spec_0
+    #  And the sql should match app_spec_0
     #  And the postprocess should match app_spec_0
      Then show the app preprocess 
      Then show the app ddl 
-     And show the app hql
+     And show the app sql
      Then show the app postprocess 
 
 
+  @current
   Scenario: Parse a definition where all options/commands are on one line
 		Given an existing app that is reinitialized 
+    And the app parses /domain stage
     And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8 /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 /fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 /include cond2
     Then the ddl should match app_spec_0 
-     And the preprocess should match app_spec_0
-     And the hql should match app_spec_0
+    And show the app preprocess
+    # And the preprocess should match app_spec_0
+     And the sql should match app_spec_0
      And the postprocess should match app_spec_0
 
   Scenario: Parse a definition where all options/commands are on one line
@@ -97,7 +99,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
      And the app parses /include cond2
      Then the ddl should match app_spec_1 
       And the preprocess should match app_spec_1
-      And the hql should match app_spec_1
+      And the sql should match app_spec_1
       And the postprocess should match app_spec_1
   
   Scenario: Defining another 'splitter' app
@@ -118,7 +120,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include leftover
     Then the ddl should match app_spec_2 
     And the preprocess should match app_spec_2
-    And the hql should match app_spec_2
+    And the sql should match app_spec_2
     And the postprocess should match app_spec_2
   
   Scenario: Defining an app with derived fields and references
@@ -146,7 +148,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include leftover
     Then the ddl should match app_spec_3 
     And the preprocess should match app_spec_3
-    And the hql should match app_spec_3
+    And the sql should match app_spec_3
     And the postprocess should match app_spec_3
   
   Scenario: Defining an app with derived fields and references
@@ -177,7 +179,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include leftover
     Then the ddl should match app_spec_4 
     And the preprocess should match app_spec_4
-    And the hql should match app_spec_4
+    And the sql should match app_spec_4
     And the postprocess should match app_spec_4
   
   Scenario: Parse a definition to obtain the processing commands 
@@ -197,12 +199,12 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include remaining
     # Then the ddl should match app_spec_5 
     # And the preprocess should match app_spec_5
-    # And the hql should match app_spec_5
+    # And the sql should match app_spec_5
     # And the postprocess should match app_spec_5
     Then show the app preprocess
     And show the app analyze
     And show the app ddl 
-    And show the app hql
+    And show the app sql
     And show the app postprocess
     And show the app cleanup_db
     And show the app cleanup_fs
@@ -232,5 +234,5 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include cond3
      Then show the app preprocess 
      Then show the app ddl 
-     And show the app hql
+     And show the app sql
      Then show the app postprocess 

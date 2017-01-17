@@ -35,7 +35,7 @@ module Narp
 
     def move_s32pre_stage
       [
-       "aws s3 cp #{::File.join(myapp.s3_in_path, compressed_name)} #{stage}/#{compressed_basename}",
+       "aws s3 cp #{s3_location} #{stage}/#{compressed_basename}",
        compression_type == :gz ? "gunzip -f #{stage}/#{compressed_basename}" : "unzip -o #{stage}/#{compressed_basename}"
       ]
     end

@@ -13,7 +13,7 @@ module Narp
       value
     end
 
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       to_s
     end
   end
@@ -25,7 +25,7 @@ module Narp
       myid.value
     end
 
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       name
     end
   end
@@ -34,13 +34,13 @@ module Narp
   end
   
   class NodeReference < NamedNode
-    def to_hql(indent=0)
-      myapp.get(name, self.class).to_hql(indent) 
+    def to_sql(indent=0)
+      myapp.get(name, self.class).to_sql(indent) 
     end
   end
 
   class FieldName < NamedNode
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       "#{myapp.output_spec.side(self)}_#{name}"
     end
   end
@@ -55,7 +55,7 @@ module Narp
   end
 
   class DerivedFieldName < NodeReference
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       '(' << super << ')'
     end
   end
@@ -119,7 +119,7 @@ module Narp
       value
     end
 
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       "'#{value}'"
     end
 
@@ -187,7 +187,7 @@ module Narp
       str.gsub('\d', '\\\\\\\\\d').gsub('\D', '\\\\\\\\\D').gsub('\s', '\\\\\\\\\s').gsub('\S', '\\\\\\\\\S').gsub('\w', '\\\\\\\\\w').gsub('\W', '\\\\\\\\\W')
     end
 
-    def to_hql(indent=0)
+    def to_sql(indent=0)
       return nil unless regex
       src = regex.case_insensitive? ? 'LOWER(' << myapp.placeholder << ')' : myapp.placeholder
       pat = regex.case_insensitive? ? regex.value.downcase : regex.value

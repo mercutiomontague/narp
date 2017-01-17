@@ -22,10 +22,10 @@ Then(/^the (.+) should match (app_spec_\S+)$/) do |type, yml|
     yml.reject!{|k, v| k == 'program_definition'}
 		expect( yml.keys.sort ).to eql( actual.keys.sort )
 		yml.keys.each {|k|
-			assert_matching_string( actual[k].to_s, yml[k].to_s ) 
+			assert_matching_string( yml[k].to_s, actual[k].to_s ) 
 		}
   else
-	  assert_matching_string( myapp.send(type), yml[type] )
+	  assert_matching_string( yml[type], myapp.send(type) )
   end
 	# puts myapp.send(type)
 end

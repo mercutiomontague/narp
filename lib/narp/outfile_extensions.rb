@@ -49,7 +49,7 @@ module Narp
     end
 
     def where_clause
-      conditions.empty? ? nil : "WHERE\n\t" << conditions.collect{|c| c.to_hql }.join("\n\tAND ") 
+      conditions.empty? ? nil : "WHERE\n\t" << conditions.collect{|c| c.to_sql }.join("\n\tAND ") 
     end
 
     def s3_path_prefix

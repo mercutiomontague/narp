@@ -1,6 +1,5 @@
 require 'narp/node_extensions.rb'
 require 'narp/sql/adapter.rb'
-require 'narp/sql/source.rb'
 
 module Narp
   module Hive

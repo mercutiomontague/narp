@@ -1,5 +1,5 @@
 require 'narp/node_extensions.rb'
-require 'narp/hive/source.rb'
+require 'narp/sql/source.rb'
 
 module Narp
   module Sql 
@@ -23,12 +23,13 @@ module Narp
   	  end
 
       def cleanup_db
-        [use_db, [infiles, outfiles].flatten.collect{|f| f.drop_ddl}, drop_db].flatten.join("\n")
+        [[infiles, outfiles].flatten.collect{|f| f.drop_ddl}, drop_db].flatten.join("\n")
       end
 
       def data_source
-        ::Narp::Sql::Source.new.to_s
+        Source.new.to_s
       end
+
     end
   end
 end

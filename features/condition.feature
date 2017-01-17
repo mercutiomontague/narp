@@ -7,11 +7,11 @@ Feature: Parse the conditions
   Scenario Outline: providing an arithmetic expression 
     Given an input /condition <condition>
     When parsed by ConditionG 
-   	And the hql is <hql>
+   	And the sql is <sql>
   
   @current
   	Examples:
-    | condition 				|  hql |
+    | condition 				|  sql |
     | my_cond	23+ 79= 102			 	|  	23 + 79 = 102 |
     | my_cond	79 lt 102 * (25 - 33)			 	| 79 < 102 * (25 - 33) |
     | y_cond 23+71eq94			 	  |  	23 + 71 = 94 |
@@ -30,10 +30,10 @@ Feature: Parse the conditions
     Given an input /condition <name> <condition>
     When parsed by ConditionG 
    	Then the condition is called <name> 
-    And the hql is <hql>
+    And the sql is <sql>
   
   	Examples:
-  	|  name		  | condition 				              |  hql |
+  	|  name		  | condition 				              |  sql |
     | my_cond	  | 'blue' nc 'green'			 	        | LOCATE('green', 'blue') = 0|
     | b_cond	  | 'blue '' goo ' mt 'green'			 	| 'blue '' goo ' = 'green' |
   	| c_cond	  | "blue "" goo " ct "green"			 	| LOCATE('green', 'blue "" goo ') > 0 |
@@ -46,10 +46,10 @@ Feature: Parse the conditions
 		And the app has numeric fields <numeric_field_list>
 		And the app has character fields <character_field_list>
     When parsed by ConditionG 
-    And the hql is <hql>
+    And the sql is <sql>
 
   	Examples:
-  	| condition 				                  |numeric_field_list  | character_field_list |  hql |
+  	| condition 				                  |numeric_field_list  | character_field_list |  sql |
   	| mycond int6 + 5 > 10                       |	int6, int9         | []                   | lhs_int6 + 5 > 10|
   	| mycond 5"blue" ct "green" or int6 < 10    |	int6, int9         | []                   | LOCATE('green', 'blueblueblueblueblue') > 0 OR lhs_int6 < 10|
     | mycond int6 < 10 AND 5"blue" ct "green"    |	int6, int9         | []                   | lhs_int6 < 10 AND LOCATE('green', 'blueblueblueblueblue') > 0 |

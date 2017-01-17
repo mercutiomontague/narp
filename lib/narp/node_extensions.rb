@@ -146,8 +146,8 @@ class Treetop::Runtime::SyntaxNode
     (elements && elements.size > 0 && elements.collect{|f| f.to_s }.join(' ')) || value
   end
 
-  def to_hql(indent=0)
-    (elements && elements.size > 0 && elements.collect{|f| f.to_hql(indent) }.reject{|r| r == ''}.join(' ')) || value
+  def to_sql(indent=0)
+    (elements && elements.size > 0 && elements.collect{|f| f.to_sql(indent) }.reject{|r| r == ''}.join(' ')) || value
   end
 
   def myfind( class_obj )
