@@ -21,11 +21,11 @@ module Narp
     attr :copy
     attr :adapter, :fs
   
-    def initialize
-      init(sys: :hive, domain: nil)
+    def initialize(sys: sys=nil, domain: domain=nil)
+      init(sys: sys, domain: domain)
     end
   
-  	def init(sys: :hive, domain: nil)
+  	def init(sys: sys=nil, domain: nil)
       @domain = domain
       @@seq = 0
       @fields = []
@@ -39,17 +39,23 @@ module Narp
       @includes = IncludesList.new
       @joinkeys = JoinKeysList.new
       @output_spec = OutputSpec.new
-      @sys = sys
+      @sys = sys && sys.intern
+      require_components
       if @sys == :hive
-        Dir.entries(::File.join( ::File.dirname(__FILE__), 'narp', 'hive')).each {|f|
-          next if f =~ /^\.{1,2}/
-          require ::File.join('narp', 'hive', f)
-        }
-
         @adapter = Hive::Adapter.new
         @fs = Hive::Fs.new
+      elsif @sys == :athena
+        @adapter = Athena::Adapter.new
       end
   	end
+
+    def require_components
+      return unless @sys
+      Dir.entries(::File.join( ::File.dirname(__FILE__), 'narp', @sys.to_s)).each {|f|
+        next if f =~ /^\.{1,2}/
+        require ::File.join('narp', @sys.to_s, f)
+      }
+    end
 
 
     PATH_DEFAULTS = {s3_in_path: "s3://narp-in-dev",

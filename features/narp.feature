@@ -6,7 +6,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
 
 
   Scenario Outline: Adding outfile objects to the app
-		Given an existing app that is reinitialized 
+		Given an existing hive app that is reinitialized 
 		And the app has outfiles <initial_outfiles>
     And additional outfiles <additional_outfiles>
     Then I expect outfiles with these pieces <outfile_positions>
@@ -18,7 +18,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
 
 
   Scenario Outline: Adding outfile and include objects to the app
-		Given an existing app that is reinitialized 
+		Given an existing hive app that is reinitialized 
 		And the app has outfiles <initial_outfiles>
     And the app has includes <initial_includes>
     And additional outfiles <additional_outfiles>
@@ -33,7 +33,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
 
 
   Scenario: Providing a complete application definition
-		Given an existing app that is reinitialized 
+		Given an existing hive app that is reinitialized 
     And the app parses /domain zions_1
     And the app parses /infile '/short/path/my file 1.txt' alias moo '\t'  Sequential compressed highcompression 349 15 stream crlf	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 
     And the app parses /infile 'file 2.txt' alias zoo fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8
@@ -61,9 +61,8 @@ Feature: Parse the definition of a an ETL program using the Narp language
      Then show the app postprocess 
 
 
-  @current
   Scenario: Parse a definition where all options/commands are on one line
-		Given an existing app that is reinitialized 
+		Given an existing hive app that is reinitialized 
     And the app parses /domain stage
     And the app parses /infile '/short/path/My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87  NUMBER_OF_COLUMNS 8 /infile 'Your text_file.txt' alias zoo fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 /fields my_col 4:1 integer /fields col3 3:3 - 4:7 /fields dateCol 5:1 datetime mm/yy-dd0 hh /condition cond11 5"blue" ct "green" oR my_col < 10 /condition cond2 col3 mt /yel/i /reformat dateCol, rightside:my_col /outfile 'Her text_file.txt' Sequential compressed /joinkeys col3 /include cond11 /infile 'third_file.txt' alias foo fskiprecord 5 fstopafter 17 /joinkeys my_col /join unpaired leftside /outfile 'path/to/file/His text_file.txt' Sequential compressed highcompression 49 325 "\t" recordnumber 22 /include cond2
     Then the ddl should match app_spec_0 
@@ -73,14 +72,14 @@ Feature: Parse the definition of a an ETL program using the Narp language
      And the postprocess should match app_spec_0
 
   Scenario: Parse a definition where all options/commands are on one line
-		Given an existing app that is reinitialized 
+		Given an existing hive app that is reinitialized 
 		And the app parses /DOMAIN Zions_1 /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt_crlf.gz STREAM crlf "\t" NUMBER_OF_COLUMNS 4 /copy /collatingsequence DEFAULT ASCII /fields cus 3:1 - 3:7 /condition header  (cus = "0000019") /condition billing (cus != "0000019") /condition remaining (cus = "       ") /outfile /etl/dev/source/text_253/ref/data_head_2016-11-03.txt overwrite 3 stream cr /include header /outfile /etl/dev/source/text_253/ref/data_bill_2016-11-03.txt overwrite stream cr /include billing /outfile /etl/dev/source/text_253/ref/data_remain_2016-11-03.txt overwrite stream cr recordnumber 3 /include remaining 
 
 		Then show the app processing_steps 
 
 
   Scenario: Defining a 'splitter' app
-   	Given an existing app that is reinitialized 
+   	Given an existing hive app that is reinitialized 
      And the app parses /infile 'My_text_file.txt' alias moo "\t"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 8 
      And the app parses /infile 'Your_text_file.txt' alias zoo fstopafter 87  NUMBER_OF_COLUMNS 8
      And the app parses /fields my_col 2:1 integer 
@@ -103,7 +102,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
       And the postprocess should match app_spec_1
   
   Scenario: Defining another 'splitter' app
-  	Given an existing app that is reinitialized 
+  	Given an existing hive app that is reinitialized 
     And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 8
     And the app parses /collatingsequence DEFAULT ASCII
     And the app parses /fields form 2:19 - 2:27
@@ -124,7 +123,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the postprocess should match app_spec_2
   
   Scenario: Defining an app with derived fields and references
-  	Given an existing app that is reinitialized 
+  	Given an existing hive app that is reinitialized 
     And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 8
  
     And the app parses /collatingsequence DEFAULT ASCII
@@ -152,7 +151,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the postprocess should match app_spec_3
   
   Scenario: Defining an app with derived fields and references
-  	Given an existing app that is reinitialized with zions domain
+  	Given an existing hive app that is reinitialized with zions domain
     And the app parses /infile /etlsource/text_zubuat_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 8
  
     And the app parses /collatingsequence DEFAULT ASCII
@@ -183,7 +182,7 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the postprocess should match app_spec_4
   
   Scenario: Parse a definition to obtain the processing commands 
-  	Given an existing app that is reinitialized 
+  	Given an existing hive app that is reinitialized 
     # And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt STREAM cr "\t" NUMBER_OF_COLUMNS 5 /copy
     And the app parses /domain zions /infile /etl/dev/source/text_253/ref/data_2016-11-03.txt STREAM crlf "\t" /copy
     And the app parses /collatingsequence DEFAULT ASCII
@@ -211,8 +210,9 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And show the app infile s3 mappings
     And show the app outfile s3 mappings
 		
+  @current
   Scenario: Providing a complete application definition
-		Given an existing app that is reinitialized 
+		Given an existing hive app that is reinitialized 
     And the app parses /domain zions_1
     And the app parses /infile /short/path/data_1 alias moo "\t"  Sequential compressed highcompression stream crlf fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 10 
     And the app parses /fields id 1:1 integer

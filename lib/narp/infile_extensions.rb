@@ -24,7 +24,8 @@ module Narp
     end
 
     def number_of_columns
-      (_number_of_columns || 5).to_i
+      # (_number_of_columns || 5).to_i
+      _number_of_columns.to_i
     end
 
     def file_fields

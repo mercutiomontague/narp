@@ -34,8 +34,8 @@ def parse_options
       options.tasks = true
     end
 
-    opts.on('--sys [ath|hive]', 'Specify the query engine') do |q|
-      raise ArgumentError.new("[#{q}] is not a supported query engine.  Please specify either only 'ath' or 'hive' only.") unless ['ath', 'hive'].detect{|d| d == q.downcase}
+    opts.on('--sys [athena|hive]', 'Specify the query engine') do |q|
+      raise ArgumentError.new("[#{q}] is not a supported query engine.  Please specify either only 'athena' or 'hive' only.") unless ['athena', 'hive'].detect{|d| d == q.downcase}
       options.sys = q.downcase.intern
     end
 

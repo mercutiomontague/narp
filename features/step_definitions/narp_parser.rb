@@ -47,6 +47,10 @@ Given(/^an existing app that is reinitialized( with (.+) domain)?$/) do |phrase,
   myapp.init(domain: domain)
 end
 
+Given(/^an existing (.+) app that is reinitialized( with (.+) domain)?$/) do |sys, phrase, domain|
+  myapp.init(domain: domain, sys: sys)
+end
+
 Given(/^additional (includes .+)$/) do |list|
   myapp.includes << list.collect{|o| OpenStruct.new(:name => o)}
 end
