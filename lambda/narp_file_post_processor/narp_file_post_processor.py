@@ -81,15 +81,14 @@ class NarpFilePostProcessor:
         self.source_field_delimiter = event['SourceFieldDelimiter'] if 'SourceFieldDelimiter' in event else None
         self.line_delimiter = event['LineDelimiter'] if 'LineDelimiter' in event else None
         self.field_delimiter = event['FieldDelimiter'] if 'FieldDelimiter' in event else None
-        self.row_size = S3MultipartUploader.minPartSize
+        self.row_size = S3MultipartUploader.minPartSize * 2
         self.starting_byte = 0
         self.ending_byte = 0
 
-        upload_key = self.key.replace('.gz', '_my.gz')
+        upload_key = self.key
         if self.object_size() >= self.row_size:
             self.loader = S3MultipartUploader( {'Bucket': self.bucket, 'UploadKey': upload_key} )
         else:
-            # self.loader = FileSystemUploader( {'Bucket': self.bucket, 'UploadKey': upload_key} )
             self.loader = S3ObjectUploader( {'Bucket': self.bucket, 'UploadKey': upload_key} )
 
         self.process()
@@ -98,7 +97,10 @@ class NarpFilePostProcessor:
         self.loader.upload(txt)
 
     def object_size(self):
-        return self.s3.list_objects_v2( Bucket=self.bucket, Prefix=self.key )['Contents'][0]['Size']
+        resp = self.s3.list_objects_v2( Bucket=self.bucket, Prefix=self.key )
+        if resp['KeyCount'] == 0: raise Exception("The target {}/{} does not exist!".format( self.bucket, self.key ) ) 
+        return resp['Contents'][0]['Size']
+
 
     def byte_range(self):
         return 'bytes={}-{}'.format(self.starting_byte, self.ending_byte)
@@ -141,9 +143,13 @@ class NarpFilePostProcessor:
             self.upload( self.comp.flush() )
 
 
+def process(event, context):
+    return NarpFilePostProcessor(event)
+
+
 
 # event = {'LineDelimiter': "\r\n", 'FieldDelimiter': "\t", 'Bucket': 'narp-out-dev', 'Key': "Zions_11/big.txt.gz"}
 # event = {'SourceFieldDelimiter': "\t", 'LineDelimiter': "\r", 'FieldDelimiter': "\Z", 'Bucket': 'narp-archive', 'Key': "out_file_2_cr.txt.gz"}
-event = {'SourceFieldDelimiter': "\t", 'LineDelimiter': "\r", 'FieldDelimiter': "\Z", 'Bucket': 'narp-archive', 'Key': "bigger.txt.gz"}
+event = {'SourceFieldDelimiter': "\t", 'LineDelimiter': "\r", 'FieldDelimiter': "\Z", 'Bucket': 'narp-archive', 'Key': "test/out_file_1.txt.gz"}
 
 NarpFilePostProcessor(event)

@@ -25,24 +25,28 @@ class TestNumberOfColumns:
     def payload(self, resp):
         return json.loads( resp['Payload'].read() )
 
+    def successful_call(self, resp):
+        assert_equals( resp['StatusCode'], 200 )
+        assert( 'FunctionError' not in resp  )
+
     def test_when_tab_field_delimiter(self):
         resp = self.lam.invoke( FunctionName='NumberOfColumns', Payload=self.json_file() )
-        assert_equals( resp['StatusCode'], 200 )
+        self.successful_call(resp)
         assert_equals( self.payload(resp), 7)
 
     def test_when_tab_field_and_cr_row_delimiter(self):
         resp = self.lam.invoke( FunctionName='NumberOfColumns', Payload=self.json_file("\r", "\t", "out_file_2_cr.txt.gz") )
-        assert_equals( resp['StatusCode'], 200 )
+        self.successful_call(resp)
         assert_equals( self.payload(resp), 4)
 
     def test_when_referencing_non_existent_file(self):
         resp = self.lam.invoke( FunctionName='NumberOfColumns', Payload=self.json_file("\r", "\t", "non_existent_file.txt.gz") )
-        assert_equals( resp['StatusCode'], 200 )
-        assert_equals( self.payload(resp)['errorMessage'], 'An error occurred (AccessDenied) when calling the GetObject operation: Access Denied')
+        assert( 'FunctionError' in resp  )
+        assert( re.search( 'The specified key does not exist.', self.payload(resp)['errorMessage'] ))
 
     def test_when_using_delimiters_that_dont_exist_in_file(self):
         resp = self.lam.invoke( FunctionName='NumberOfColumns', Payload=self.json_file("\r\n", "\r\n", "out_file_1.txt.gz"))
-        assert_equals( resp['StatusCode'], 200 )
+        assert( 'FunctionError' in resp  )
         mess = self.payload(resp)['errorMessage']
         assert( re.search( 'Task timed out after 10.00 seconds', mess ) is not None )
 

@@ -20,10 +20,11 @@ def number_of_columns(event, context):
   if 'RowSize' not in event: event['RowSize'] = 5000
   while True:
     event['RowSize'] *= 2
+    print "Working with RowSize = {}".format( event['RowSize'] )
     if get_line(event) is not None:
       return len( get_line(event).split(event['FieldDelimiter']) )
 
 
 
-event = {'LineDelimiter': "\n", 'FieldDelimiter': "\t", 'Bucket': 'narp-out-dev', 'Key': "Zions_11/./out_file_1/txt/out_file_1.txt.gz"}
+event = {'LineDelimiter': "\r\n", 'FieldDelimiter': "Z", 'Bucket': 'narp-archive', 'Key': "out_file_1.txt.gz"}
 print "number of columns is " + '{}'.format( number_of_columns(event, None) )
