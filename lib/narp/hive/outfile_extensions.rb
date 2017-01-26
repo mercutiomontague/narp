@@ -1,5 +1,4 @@
 module Narp 
-
   class Outfile < File
 
     def hive_write_mode
@@ -9,7 +8,7 @@ module Narp
     end
 
     def stage
-      ::File.join([myapp.post_stage_path, name.prefix].compact)
+      ::File.join([myapp.post_path, name.prefix].compact)
     end
 
     def stage_dest
@@ -20,31 +19,31 @@ module Narp
       ::File.join('hdfs:/', myapp.hdfs_out_path, name.to_s)
     end
 
-    def hdfs_post_process_path
-      ::File.join('hdfs:/', myapp.hdfs_out_path, name.to_s, 'post_process')
-    end
-
     def init_post
       [
         "mkdir -p #{stage}"
       ]
     end
 
-    # If we post-processed the data (ie: by changing the row delimiter or cutting the record length) then
-    # the source path is different
-    def move_hdfs2post_stage
-      ["hadoop fs -getmerge #{post_process ? hdfs_post_process_path : hdfs_path} #{stage_dest}",
+    def move_to_post
+      ["hadoop fs -getmerge #{hdfs_path} #{stage_dest}",
        "gzip #{stage_dest}"
       ]
     end
 
-    def post_process
-      warn("Minimum record lengths are not yet implimented and was ignored for [#{name}]") if record_length && record_length.min > 1
-
-      return nil unless fix_row_delimiter || fix_row_length
-      ["hadoop fs -cat #{hdfs_path}/*", fix_row_length, fix_row_delimiter, "hadoop fs -put - #{hdfs_post_process_path}"].compact.join(' | ')
+    def cleanup 
+      [
+        "set -e",
+        "rm -rf #{stage}", 
+        "hadoop fs -rm -r #{hdfs_path}", 
+        "set +e"
+      ]
     end
 
+    def move_to_s3
+      "aws s3 cp #{stage_dest}.gz #{s3_location}"
+    end
+  
     def insert_sql
       ["INSERT #{hive_write_mode} TABLE #{table_name}",
        "SELECT\n\t" << sql_cols.join("\n\t, "), 
@@ -64,18 +63,5 @@ module Narp
       "cut -c1-#{record_length.max}" if record_length
     end
 
-    def cleanup 
-      [
-        "set -e",
-        "rm -rf #{stage}", 
-        "hadoop fs -rm -r #{hdfs_path}", 
-        "set +e"
-      ]
-    end
-
-    def move_post2s3
-      "aws s3 cp #{stage_dest}.gz #{s3_location}"
-    end
   end
-  
 end

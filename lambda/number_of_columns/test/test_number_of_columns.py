@@ -18,7 +18,7 @@ class TestNumberOfColumns:
                    "LineDelimiter": line_delimiter,
                    "FieldDelimiter": field_delimiter,
                    "Bucket": 'narp-archive',
-                   "Key": target_file
+                   "Prefix": target_file
                   }
         return StringIO.StringIO( json.dumps(payload))
 
@@ -42,7 +42,7 @@ class TestNumberOfColumns:
     def test_when_referencing_non_existent_file(self):
         resp = self.lam.invoke( FunctionName='NumberOfColumns', Payload=self.json_file("\r", "\t", "non_existent_file.txt.gz") )
         assert( 'FunctionError' in resp  )
-        assert( re.search( 'The specified key does not exist.', self.payload(resp)['errorMessage'] ))
+        assert( re.search( 'The target .+ does not exist.', self.payload(resp)['errorMessage'] ))
 
     def test_when_using_delimiters_that_dont_exist_in_file(self):
         resp = self.lam.invoke( FunctionName='NumberOfColumns', Payload=self.json_file("\r\n", "\r\n", "out_file_1.txt.gz"))

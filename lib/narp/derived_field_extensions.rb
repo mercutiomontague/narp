@@ -233,6 +233,7 @@ module Narp
       (builtin_field ||  derived_field_expression).to_sql(indent) 
     end
 
+
     def method_missing(meth, *args, &block)
       if builtin_field && builtin_field.respond_to?( meth )
         builtin_field.send( meth, *args )

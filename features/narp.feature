@@ -232,7 +232,5 @@ Feature: Parse the definition of a an ETL program using the Narp language
     And the app parses /include cond2
     And the app parses /outfile /to/file/out_file3.txt 
     And the app parses /include cond3
-     Then show the app preprocess 
-     Then show the app ddl 
-     And show the app sql
-     Then show the app postprocess 
+    Then the app normalized text is ["/DOMAIN zions_1", "/INFILE /short/path/data_1 alias moo \"\\t\"  sequential compressed highcompression stream crlf fskiprecord 15 fstopafter 87 number_of_columns 10", "/FIELDS id 1:1 integer", "/FIELDS date1 2:1 datetime mm0/year-dd0", "/FIELDS dt2 3:1 datetime year/mn/dd hh0:mi0:se0 a.m.", "/FIELDS dt3 4:1 datetime mon ddth\", \"year hh0mi0:se0", "/FIELDS col5 5:3", "/FIELDS col6 6:1", "/FIELDS col10 10:1 integer", "/DERIVEDFIELD num col10 *2", "/CONDITION cond2 col6 mt /tarzan/i", "/CONDITION cond11 dt3 > \"2000-01-21 01:21:20\"", "/CONDITION cond3 dt2 = \"2009-02-28 19:05:00\"", "/OUTFILE out_file_1.txt", "/INCLUDE cond11", "/OUTFILE path/to/file/out_file2.txt", "/INCLUDE cond2", "/OUTFILE /to/file/out_file3.txt", "/INCLUDE cond3"]
+ 

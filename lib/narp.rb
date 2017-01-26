@@ -10,16 +10,18 @@ require 'narp/narp.treetop'
 require 'json'
 
 module Narp
-  class Narp < OpenStruct
+  class Narp # < OpenStruct
     include Singleton
   	
     @@seq = 0
     @@numeric_types = ['integer', 'float', 'dfloat']
+    attr_writer :s3_in_bucket_uri, :s3_out_bucket_uri
+    attr_reader :s3_in_bucket_uri, :s3_out_bucket_uri
     attr :infiles, :outfiles, :includes, :joinkeys
     attr :collations, :conditions, :joins, :fields, :output_spec, :collating_sequences
     attr :derived_fields, :domain
     attr :copy
-    attr :adapter, :fs
+    attr :adapter, :fs, :normalized_nql
   
     def initialize(sys: sys=nil, domain: domain=nil)
       init(sys: sys, domain: domain)
@@ -39,6 +41,9 @@ module Narp
       @includes = IncludesList.new
       @joinkeys = JoinKeysList.new
       @output_spec = OutputSpec.new
+      @normalized_nql = []
+      @s3_in_bucket_uri = 'narp-in-dev'
+      @s3_out_bucket_uri = 'narp-out-dev'
       @sys = sys && sys.intern
       require_components
       if @sys == :hive
@@ -57,14 +62,10 @@ module Narp
       }
     end
 
-
-    PATH_DEFAULTS = {s3_in_path: "s3://narp-in-dev",
-                      s3_out_path: "s3://narp-out-dev",
+    PATH_DEFAULTS = {
                       hdfs_in_path: '/user/hadoop/in',
                       hdfs_out_path: "/user/hadoop/out",
-                      pre_stage_path: "~/pre_stage",
                       pre_path: "~/pre",
-                      post_stage_path: "~/post_stage",
                       post_path: "~/post",
                       log_path: "~/log",
                       tmp_path: "/tmp"
@@ -76,6 +77,23 @@ module Narp
         ::File.join(v, @domain || '')
       }
     }
+
+    
+    def s3_in_bucket_url
+      "s3://#{s3_in_bucket_uri}"
+    end
+
+    def s3_out_bucket_url
+      "s3://#{s3_out_bucket_uri}"
+    end
+
+    def s3_in_path
+      ::File.join( s3_in_bucket_url, @domain || '')
+    end
+    
+    def s3_out_path
+      ::File.join( s3_out_bucket_url, @domain || '')
+    end
   
     [:collations, :conditions, :fields ].each {|n|
       eval("
@@ -98,7 +116,11 @@ module Narp
   		# Not sure why but I need to add the fake term dummyCommandSonny otherwise the first search term (/collatingsequence) fails to match
       keywords = %w[ /dummyCommandSonny /collatingsequence /condition /copy /fields /include /infile /joinkeys /join /outfile /reformat ]
       lines = input.gsub(/%r{#{keywords.join('|')}/i) {|match| "#{match}"}.split("").reject{|r| r.empty?}
-      lines.each {|line| parse_one_line(line.strip)}
+      @normalized_nql << lines.inject( [] ) {|memo, line| 
+        memo << parse_one_line(line.strip)
+      }
+      @normalized_nql.flatten!
+      @normalized_nql.compact!
     end
   
     def parse_one_line(input)
@@ -136,6 +158,7 @@ module Narp
         when 'Narp::DerivedField'
           derived_fields << tree
       end
+      tree.to_normalized
     end
   
   
@@ -221,19 +244,9 @@ module Narp
         fs.send(meth)
       }
     }
-    
-    def analyze
-      infiles.inject({}) {|memo, i| 
-        if i.analyze
-          memo[i.name.to_s] = i.analyze
-        end
-        memo
-      }
-    end
   
 		def processing_steps
 			{'Preprocess' => preprocess,  
-       'Analyze' => analyze,
        'Initialize' => ddl, 
 			 'Process' => sql, 
 			 'Postprocess' => postprocess, 

@@ -9,7 +9,6 @@ Feature: Parse the conditions
     When parsed by ConditionG 
    	And the sql is <sql>
   
-  @current
   	Examples:
     | condition 				|  sql |
     | my_cond	23+ 79= 102			 	|  	23 + 79 = 102 |
@@ -26,6 +25,7 @@ Feature: Parse the conditions
     | j_cond (((23+71) ge 78+15) and (5 < 3)) |  	(((23 + 71) >= 78 + 15) AND (5 < 3)) |
   
 
+  @current
   Scenario Outline: providing a character expression 
     Given an input /condition <name> <condition>
     When parsed by ConditionG 
@@ -34,7 +34,7 @@ Feature: Parse the conditions
   
   	Examples:
   	|  name		  | condition 				              |  sql |
-    | my_cond	  | 'blue' nc 'green'			 	        | LOCATE('green', 'blue') = 0|
+    | my_cond	  | 'Blue' nc 'green'			 	        | LOCATE('green', 'Blue') = 0|
     | b_cond	  | 'blue '' goo ' mt 'green'			 	| 'blue '' goo ' = 'green' |
   	| c_cond	  | "blue "" goo " ct "green"			 	| LOCATE('green', 'blue "" goo ') > 0 |
     | d_cond	  | "blue" mt /u/			 	            | 'blue' RLIKE 'u' |

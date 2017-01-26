@@ -28,6 +28,7 @@ module Narp
     def to_sql(indent=0)
       name
     end
+
   end
 
   class Domain < NamedNode
@@ -37,6 +38,7 @@ module Narp
     def to_sql(indent=0)
       myapp.get(name, self.class).to_sql(indent) 
     end
+
   end
 
   class FieldName < NamedNode
@@ -58,6 +60,11 @@ module Narp
     def to_sql(indent=0)
       '(' << super << ')'
     end
+
+    def to_s
+      name
+    end
+
   end
 
   class SequenceName < Treetop::Runtime::SyntaxNode

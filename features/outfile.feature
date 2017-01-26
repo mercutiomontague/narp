@@ -57,20 +57,20 @@ Feature: Parse the definition for an output file
   Scenario Outline: Providing a filename, and a field seperator
 		Given an existing app that is reinitialized 
     Given an input /outfile 'My text_file.txt' <seperator_keyword> <seperator>
-    And the app parses /infile <infile1>
-    And the app parses /infile <infile2>
+    And the app parses /infile <infile1> number_of_columns 23
+    And the app parses /infile <infile2> NUMBER_OF_COLUMNS 5
     When parsed by OutfileG
     Then the filename is 'My text_file.txt'
     And the field seperator is <sep_value> 
 
     Examples:
-      | infile1   | infile2       | seperator_keyword | seperator | sep_value |
-      | 'f1.txt'  | 'f2.txt' "z"  | FIELDSEPARATOR    | "\t"      | \t        |
-      | 'f1.txt'  | 'f2.txt' "z"  |                   | ","       | ,         |
-      | 'f1.txt'  | 'f2.txt' "z"  | FIELDSEPARATOR    | x"73"     | s         |
-      | 'f1.txt' 	| 'f2.txt' "z"  |					          |      			| z         |
-      | 'f1.txt' "y"	| 'f2.txt'  |					          |      			| y         |
-      | 'f1.txt' 	| 'f2.txt'      |					          |      			| \t        |
+      | infile1   | infile2         | seperator_keyword | seperator | sep_value |
+      | 'f1.txt'  | 'f2.txt' "z"    | FIELDSEPARATOR    | "\t"      | \t        |
+      | 'f1.txt'  | 'f2.txt' "z"    |                   | ","       | ,         |
+      | 'f1.txt'  | 'f2.txt' "z"    | FIELDSEPARATOR    | x"73"     | s         |
+      | 'f1.txt' 	| 'f2.txt' "z"  |					|           | z         |
+      | 'f1.txt' "y"	| 'f2.txt'  |					|           | y         |
+      | 'f1.txt' 	| 'f2.txt'      |					|           | \t        |
 
 
 ##### The following scenarios are specific to outfile while those above can

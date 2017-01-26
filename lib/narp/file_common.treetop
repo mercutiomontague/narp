@@ -15,7 +15,7 @@ module Narp
     # have embedded whitespaces as long as the name is quoted by double or
     # single quote.
   	rule file_identifier
-      (space? quote [/a-zA-Z0-9_\s\.\-]+ quote space? <FileIdentifier>) / (space? [/a-zA-Z0-9_\.\-]+ space? <FileIdentifier>)
+      (space? quote [/a-zA-Z0-9_\s\.\-:]+ quote space? <FileIdentifier>) / (space? [/a-zA-Z0-9_\.\-:]+ space? <FileIdentifier>)
     end
   
     rule field_seperator

@@ -66,4 +66,3 @@ end
 Then(/^the record data is stream$/) do
 	expect( @cur.stream_record_format).to_not be_nil
 end
-

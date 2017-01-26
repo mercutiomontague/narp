@@ -5,12 +5,17 @@ module Narp
 
   class FileIdentifier < TerminalNode
     def value
-      # text_value.strip.sub(/^["']/, '').sub(/["']$/, '')
       text_value.strip
     end
 
     def prefix
       ::File.dirname(value) == '.' ? nil : ::File.dirname(value)
+    end
+
+    # Create a folder with the filename but omitting the last extension.
+    def s3_prefix
+      p = ::File.basename(value).split('.')[0..-2].join('.')
+      [prefix, p].compact.join('/')
     end
 
     def basename
@@ -111,11 +116,11 @@ module Narp
     end
 
 		def self.default_field_seperator
-			OpenStruct.new(:value=>"\t", :escaped_value => '\t')
+			OpenStruct.new(:escaped_value => '\t', :to_s => "\t")
 		end
 
     def line_seperator
-      stream_record_format && stream_record_format.escaped_value || '\n'
+      stream_record_format && stream_record_format || "\n"
     end
 
     def fields_string
@@ -130,26 +135,6 @@ module Narp
       "DROP TABLE #{table_name};"
     end
 
-    def ddl
-      raise ArgumentError.new("The file type #{organization.value} isn't currently supported") unless organization.nil? || organization.value == 'sequential'
-      # %Q[SET textinputformat.record.delimiter="#{line_seperator}";\n] << 
-      "CREATE EXTERNAL TABLE #{table_name}\n(\n" <<
-      "\t" << fields_string <<
-      "\n)\n" <<
-      "ROW FORMAT\n" <<
-      "\tDELIMITED FIELDS TERMINATED BY '#{field_seperator.escaped_value}'\n" <<
-      "\tLINES TERMINATED BY '\n'" <<
-      "\tNULL DEFINED AS ''\n" <<
-      "STORED AS TEXTFILE\n" <<
-      "LOCATION '#{remote_location}/'\n;"
-    end
-
-    def s3_location
-      target = (name.to_s =~ /\.gz$|\.zip$/ ? name.to_s : name.to_s << ".gz")
-      prefix = ::File.join(::File.dirname(target), ::File.basename(target).split('.')[0..-2]).sub(/^\./, '')
-      ::File.join(s3_path_prefix, prefix, ::File.basename(target))
-    end
-
   end
 
   class FilesList < PositionalList
@@ -160,6 +145,5 @@ module Narp
       }
     end 
   end
-
 
 end

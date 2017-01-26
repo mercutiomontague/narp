@@ -15,9 +15,16 @@ def get_line(dict):
   else:
     return chunk.split(dict['LineDelimiter'])[0]
 
+def key(dict):
+  s3 = boto3.client('s3')
+  resp = s3.list_objects_v2( Bucket=dict['Bucket'], Prefix=dict['Prefix'] )
+  if resp['KeyCount'] == 0: raise Exception("The target s3://{}/{} does not exist!".format( dict['Bucket'], dict['Prefix'] ))
+  return resp['Contents'][0]['Key']
 
 def number_of_columns(event, context):
   if 'RowSize' not in event: event['RowSize'] = 5000
+  event['Key'] = key(event)
+  print "Got these input paramters {}".format( event )
   while True:
     event['RowSize'] *= 2
     print "Working with RowSize = {}".format( event['RowSize'] )
@@ -26,5 +33,5 @@ def number_of_columns(event, context):
 
 
 
-event = {'LineDelimiter': "\r\n", 'FieldDelimiter': "Z", 'Bucket': 'narp-archive', 'Key': "out_file_1.txt.gz"}
+event = {'LineDelimiter': "\n", 'FieldDelimiter': "\t", 'Bucket': 'narp-archive', 'Prefix': "out_file_9.txt"}
 print "number of columns is " + '{}'.format( number_of_columns(event, None) )

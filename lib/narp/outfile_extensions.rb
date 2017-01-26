@@ -52,8 +52,8 @@ module Narp
       conditions.empty? ? nil : "WHERE\n\t" << conditions.collect{|c| c.to_sql }.join("\n\tAND ") 
     end
 
-    def s3_path_prefix
-      myapp.s3_out_path
+    def s3_location
+      ::File.join(myapp.s3_out_bucket_url, name.s3_prefix, ::File.basename(target))
     end
 
   end

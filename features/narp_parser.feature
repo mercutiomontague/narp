@@ -4,7 +4,6 @@ Feature: Parse a narp statement
   As a developer
   I should be able to run this scenario to prove that the Narp understands its own language
 
-  @current
   Scenario: Parsing an infile defintion
     Given an input /infile 'My text_file.txt' alias moo x"73"  Sequential compressed highcompression 349 15 	fskiprecord 15 fstopafter 87 NUMBER_OF_COLUMNS 4 
     When parsed by Narp 
@@ -180,8 +179,9 @@ Feature: Parse a narp statement
       | calc3     | if cond2 then if cond5 then 22 + fn1 else if cond7 then 15+fn3 else 0 else 56         | CASE WHEN _cond2_ THEN CASE WHEN _cond5_ THEN 22 + lhs_fn1 ELSE CASE WHEN _cond7_ THEN 15 + lhs_fn3 ELSE 0 END END ELSE 56 END AS calc3   |
 
 
+  @current
   Scenario Outline: A derived expression referencing another derived_expression
-    Given an input /derivedfield <name> <expression>
+    Given an input /Derivedfield <name> <expression>
     And an existing app that is reinitialized
 		And the app has numeric fields fn1, fn2, fn3
 		And the app has character fields fc1, fc2
@@ -190,6 +190,7 @@ Feature: Parse a narp statement
     When parsed by Narp
    	Then the name is <name> 
     And the column expression is <column_expression>
+    And the normalized text is /DERIVEDFIELD <name> <expression> 
 
     Examples:
       | name      | expression                                  | column_expression                                                                 |

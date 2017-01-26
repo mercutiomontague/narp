@@ -131,13 +131,18 @@ Feature: Parse the definition for an input file
     And the record length is 0, 1500
 
   @current
-  Scenario: Providing NUMBER_OF_COLUMNS option
-    Given an input /infile /etlsource/text_253_2016-09-23.txt STREAM CRLF "\t" 1500 NUMBER_OF_COLUMNS 9 
+  Scenario: NUMBER_OF_COLUMNS is computed on the fly 
+    Given an input /infile out_file_1.txt.gz STREAM LF "\t" 1500 
+		And an existing app that is reinitialized 
+    And app's s3_in_bucket_uri is set to narp-archive 
     When parsed by InfileG
     Then I have a Infile at the root
-    And the filename is /etlsource/text_253_2016-09-23.txt
+    And the app's s3_in_bucket_url is s3://narp-archive
+    And the filename is out_file_1.txt.gz
     And the field seperator is \t
-    And the record delimiter is \r\n
+    And the record delimiter is \n
     And the record data is stream
     And the record length is 0, 1500
-    And the number of columns is 9
+    And the number of columns is 7 
+    And the normalized text is /INFILE out_file_1.txt.gz stream lf "\t" 1500 number_of_columns 7
+

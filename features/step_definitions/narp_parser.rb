@@ -97,3 +97,24 @@ Then(/^the base_sequence is (.+)$/) do |val|
   expect( @cur.base_sequence ).to eq(val)  
 end
 
+Then(/^the normalized text is (.+)$/) do |txt|
+  expect( @cur.to_normalized ).to eql( txt ) 
+end
+
+
+Then(/^the app normalized text is (.+)$/) do |txt|
+  expect( myapp.normalized_nql.to_s ).to eql( txt ) 
+end
+
+Then (/^app's (.+) is set to (.+)$/) do |meth, val|
+  m = "#{meth}="
+  puts "---> m is #{m}, #{myapp.s3_in_bucket_uri}"
+  myapp.s3_in_bucket_uri = val
+  puts "+++> #{myapp.s3_in_bucket_url}"
+  myapp.send("#{m}", val)
+end
+
+
+Then (/^the app's (.+) is (.+)$/) do |meth, val|
+  expect( myapp.send(meth) ).to eql(val)
+end

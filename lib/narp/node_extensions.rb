@@ -94,7 +94,7 @@ end
 
 
 
-# Define some custom attributes to simplify creatoin
+# Define some custom attributes to simplify creation
 # of custom SyntaxNode subclasses.
 class Class 
 
@@ -138,18 +138,27 @@ end
 # Define some finders to make it easy to bring child elements
 class Treetop::Runtime::SyntaxNode
 
+  def base_class_name
+    self.class.to_s.split('::').last
+  end
+
 	def value
 		text_value.strip.downcase
 	end
 
   def to_s
-    (elements && elements.size > 0 && elements.collect{|f| f.to_s }.join(' ')) || value
+    value
+  end
+
+  def to_normalized
+    value.sub(/^\/#{base_class_name}/i, "/" << base_class_name.upcase)
   end
 
   def to_sql(indent=0)
     (elements && elements.size > 0 && elements.collect{|f| f.to_sql(indent) }.reject{|r| r == ''}.join(' ')) || value
   end
 
+  # Find the first child that matches class_obj
   def myfind( class_obj )
     return self if self.class == class_obj 
     return nil unless elements
@@ -165,6 +174,7 @@ class Treetop::Runtime::SyntaxNode
     nil
   end
 
+  # Return an array of all children that matches class_objs
   def mysearch( *class_objs)
     return [self] if class_objs.detect{|o| self.class == o} 
     res = elements.collect {|d| 
